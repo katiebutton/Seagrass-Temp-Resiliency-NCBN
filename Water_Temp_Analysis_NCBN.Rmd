@@ -735,7 +735,10 @@ if (params$park == "FIIS") {
   cat("
 ### FIIS Key Takeaways
 
-Great South Bay is one of the most heat‑stressed NCBN sites, experiencing frequent and prolonged heat events that accumulate throughout the season. This site currently supports no eelgrass, while nearby Moriches Bay maintains dense eelgrass beds and experiences shorter heat waves due to its greater cooling capacity. Although this analysis focuses solely on temperature regimes, other water‑quality factors like dissolved oxygen, turbidity, salinity, and pH also influence eelgrass condition. Long‑term transect monitoring captured a stark decline in eelgrass condition across all three Great South Bay transects from 2007 to 2011 (Nagel et al. 2024c). This decline is likely driven by poor water clarity combined with prolonged summer temperatures exceeding 25°C. Together these conditions indicate a stressed system. One management solution is to incorporate heat‑tolerant genotypes into reseeding or transplanting efforts.
+Across NCBN parks, Great South Bay is one of the most heat-stressed locations experiencing frequent and prolonged heat events that accumulate throughout the season. This SeagrassNet site currently supports no eelgrass, while nearby Moriches Bay maintains dense eelgrass beds and experiences shorter heat waves due to its greater cooling capacity. 
+
+While this analysis focuses on thermal condition alone, other water quality factors like dissolved oxygen, turbidity, salinity, and pH also play a key role in shaping eelgrass health. At Great South Bay, long term trend reports show a stark decline in eelgrass condition across all three transects from 2007 to 2011 (Nagel et. al 2025c). This decline is likely driven by poor water clarity combined with prolonged summer temperatures exceeding 25 degrees Celsius. Together these conditions point to ecological pressure on the system. 
+
 ")
 }
 
@@ -744,10 +747,9 @@ if (params$park == "CACO") {
   cat("
 ### CACO Key Takeaways
 
-Across Cape Cod, eelgrass sites span a wide range of thermal regimes driven by local hydrodynamics. These range from open coast settings with relatively low heat stress (Duck Harbor and Provincetown Harbor), to coastal lagoons like Pleasant Bay, and highly restricted systems such as East Harbor. East Harbor is the most heat stressed NCBN site, experiencing infrequent but intense heat events that far exceed typical seasonal conditions. This site currently supports no eelgrass, while Pleasant Bay and Provincetown Harbor maintain eelgrass beds and benefit from stronger cooling that limits the duration of heat waves. 
+Across Cape Cod, eelgrass sites span a wide range of thermal regimes driven by local hydrodynamics. These range from open coast settings with relatively low heat stress (Duck Harbor and Provincetown Harbor), to coastal lagoons like Pleasant Bay, and highly restricted systems such as East Harbor. **East Harbor is the most heat stressed NCBN site**, experiencing infrequent but intense heat events that far exceed typical seasonal conditions. This site currently supports no eelgrass, while Pleasant Bay and Provincetown Harbor maintain eelgrass beds and benefit from stronger cooling that limits the duration of heat waves. 
 
-Although this analysis focuses on thermal regimes, other water quality factors—including turbidity, dissolved oxygen, salinity, and pH—also influence eelgrass condition. Long term monitoring shows a marked decline in eelgrass condition across Duck Harbor’s shallow and deep transects from 2014 to 2022 (Nagel et al. 2025c). In Pleasant Bay, eelgrass persists only on the mid depth transect, with losses from the shallow and deep transects and an overall declining trend. These patterns are likely driven by a combination of wave energy (erosion or burial), reduced water clarity, and prolonged summer temperatures exceeding 25C. 
-These patterns highlight the varying vulnerabilities across CACO sites and point to opportunities for testing heat tolerant genotypes in future reseeding or transplanting efforts.
+While this analysis focuses on thermal condition alone, other water quality factors like dissolved oxygen, turbidity, salinity, and pH also play a key role in shaping eelgrass health. At Duck Harbor, long term reports shows a marked decline in eelgrass condition across the shallow and deep transects from 2014 to 2022 (Nagel et al. 2025c). In Pleasant Bay, eelgrass persists only on the mid depth transect, with losses from the shallow and deep transects and an overall declining trend. These patterns are likely driven by a combination of wave energy (erosion or burial), reduced water clarity, and prolonged summer temperatures exceeding 25C.These patterns highlight the varying vulnerabilities and site dynamics across CACO sites.
 ")
 }
 ```
