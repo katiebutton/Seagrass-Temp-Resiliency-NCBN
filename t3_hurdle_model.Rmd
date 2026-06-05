@@ -1,0 +1,357 @@
+---
+title: "Attempt to get temperature threshold values from the presence component of the hurdle model from Plaisted et al. 2022 using the T3 seagrass data from CACO, FIIS, ASIS"
+author: "L. Feher"
+date: "`r format(Sys.time(), '%B %d, %Y')`"
+output: 
+  html_document:
+    keep_md: false
+    toc: true
+    toc_float: true
+    number_sections: false
+---
+
+This report documents my attempt to get temperature threshold values using the presence component of the GAMM hurdle model described in Plaisted et al. 2022 (<https://doi.org/10.3389/fmars.2022.920699>). **Note that we did not end up using these threshold values in the park-specific thermal regime reports because they seemed to be way too low compared to values reported in the literature** (e.g., [Berger & Berg 2024](https://doi.org/10.3354/meps14587), [Moore & Jarvis 2008](https://doi.org/10.2112/SI55-014), [Carr et al. 2012](https://doi.org/10.3354/meps09556), [Shields et al. 2018](https://doi.org/10.3390/d10040125)) **AND they did not produce ecologically reasonable results when the metrics HDH, CDH, % time above threshold, and \# of warming events were calculated** (see plots and explanation at the end)**.**
+
+The model structure for the presence component of the GAMM hurdle model was based on R code developed by Neptune and Company Inc. saved on the NCBN file server here: \
+\\\\files.nps.doi.net\\\\NPS\\\\WASO\\\\Programs\\\\IMD\\\\NCBN\\\\Files\\\\PROJECTS\\\\Plaisted_2022\\\\ncbn_seagrass\\\\R\\\\3_fit_hurdle_model.R
+
+Eelgrass presence data were obtained from the 2025 certified T3 seagrass data package (data package code: 2316692, <https://doi.org/10.57830/2316692>). Water temperature data were obtained from the NPS Aquarius database on `r format(Sys.time(), '%B %d, %Y')`. All code for downloading the T3 data from the NCBN server and querying the Aquarius database are shown in the following sections.
+
+------------------------------------------------------------------------
+
+```{r load-packages, include=FALSE}
+knitr::opts_chunk$set(warning = FALSE, message = FALSE)
+library(readr)
+library(tidyverse)
+library(mgcv)
+library(gratia)
+library(NCBNAqua)
+library(fetchaquarius)
+library(RODBC)
+library(readxl)
+library(marginaleffects)
+```
+
+## Get water temp data for T3 transects
+
+```{r get-summarise-T3-temp-data}
+
+# Establish connection to Aquarius
+fetchaquarius::connectToAquarius("aqreadonly")
+
+# Get raw T3 temp data from Aquarius
+t3_raw_temps <- map(c("National Park Service.Northeast Coastal and Barrier Network", 
+                     "National Park Service.Northeast Coastal and Barrier Network.ENE_Seagrass_Continuous"), ~fetchaquarius::getLocationInfo(folder = .x)) %>%
+  bind_rows() %>%
+  filter(Identifier %in% c("ASIS_Seagrass_Tingles", "CACO_Seagrass_MA20_1", "CACO_Seagrass_MA20_2", "FIIS_Seagrass_GSB", "FIIS_Seagrass_MB")) %>%
+  distinct() %>%
+  mutate(parameters = map(Identifier, ~getTimeSeriesInfo(.x))) %>%
+  select(-c(Identifier, UniqueId, UtcOffset, LastModified, Publish, Tags)) %>%
+  unnest(cols = c(parameters)) %>%
+  mutate(timeseries = map(Identifier, ~getTimeSeries(.x))) %>%
+  select(Name, Identifier, LocationIdentifier, Unit, Label, timeseries) %>%
+  mutate(data = map(timeseries, ~.x$Points)) %>%
+  select(-timeseries) %>%
+  unnest(cols = data) %>%
+  unnest(cols = Value) %>%
+  rename("Value" = Numeric) %>%
+  as.data.frame %>%
+  separate(., col = Timestamp, into = c("Date", "Time"), sep = " ", remove = FALSE) %>%
+  mutate(Time = if_else(is.na(Time), "00:00:00", Time)) %>%
+  filter(str_detect(Identifier, "Water Temp.A") | str_detect(Identifier, "Water Temp.B") | str_detect(Identifier, "Water Temp.C"))
+
+# Get mean daily mean temp for each year
+t3_mean_daily_temps <- t3_raw_temps %>%
+  filter(str_detect(Identifier, "Water Temp.A")) %>% # Limit to temp data from shallowest (A) transect as in Plaisted 2022
+  filter(month(Date) >= 6 & month(Date) <= 8) %>% # Filter to summer months
+  # filter(month(Date) >= 5 & month(Date) <= 9) %>% # Doesn't work - gives 4 zero crossings and 2 max presence values
+  group_by("loc" = Name, Date) %>%
+  summarise(daily_mean_temp = mean(Value, na.rm = TRUE)) %>% # Get daily mean temp for each date
+  group_by(loc, "yr" = year(Date)) %>%
+  summarise(Mean_daily_mean_temp = mean(daily_mean_temp, na.rm = TRUE)) # Get mean daily mean temp for each year
+
+# Center the temps for each site (as in Plaisted 2022)
+t3_ctr_temps <- t3_mean_daily_temps %>%
+  arrange(loc, yr) %>%
+  ungroup() %>%
+  group_by(loc) %>%
+  mutate(pryr_mean_daily_mean_temp = lag(Mean_daily_mean_temp, n = 1), # assign mean daily mean temp from prior summer to each year
+         site_mean_temp = mean(pryr_mean_daily_mean_temp, na.rm = TRUE), # get site-level mean daily mean temp across all years
+         mc_avg_temp = pryr_mean_daily_mean_temp - site_mean_temp) # center the prior-year mean daily mean temps for each year based on the site-level means
+
+disconnectFromAquarius()
+```
+
+## Get 2025 certified T3 seagrass data
+
+```{r get-summarise-T3-cover-data}
+
+# Get certified T3 seagrass data package
+t3_cover <- read_csv("//files.nps.doi.net/NPS/WASO/Programs/IMD/NCBN/Files/MONITORING/Estuarine_Eutrophication/03_ARCHIVE/Seagrass_Tier3_Quadrats/2025/Certified_Data/Tier3_Seagrass_Data_Certified_2025.csv", show_col_types = FALSE) %>%
+  filter(Transect == "A" & Species == "ZM") %>% # Limit to shallowest transect as in Plaisted 2022
+  mutate(pct_cover = ifelse(`Percent Cover` == 100, 0.99, `Percent Cover`/100),
+         presence = ifelse(pct_cover > 0, 1, 0),
+         loc = case_when( # recode locations to match temperature data
+           Location == "Fire Island" ~ "Great South Bay",
+           Location == "Duck Harbor Beach" ~ "Duck Harbor",
+           T ~ Location
+         ),
+         loc_quad = factor(paste0(loc, ":", Quadrat)),
+         yr = year(Date)) %>%
+  filter((loc %in% c("Duck Harbor", "Pleasant Bay", "Tingles Island", "Moriches Bay") & month(Date) >= 5 & month(Date) <= 9) | # Limit to data collected during summer months - 1 sampling event per year
+           (loc == "Great South Bay" & Date == as.Date("2007-07-26")) | # For 2007 at GSB, Limit to first date collected (July 26 2007)
+           (loc == "Great South Bay" & yr != 2007)) %>% # Also get data from all other years at GSB
+  select(loc, loc_quad, yr, pct_cover, presence)
+```
+
+## Join water temp data to seagrass presence data
+
+```{r join-t3-cover-temp-data}
+
+t3_ctr_temps_cover <- t3_cover %>%
+ left_join(., t3_ctr_temps, by = c("loc" = "loc", "yr" = "yr")) %>%
+  mutate(loc = factor(loc)) %>%
+  na.omit()
+
+ggplot(data = t3_ctr_temps_cover, aes(x = mc_avg_temp, y = presence)) +
+  geom_point() +
+  facet_wrap(~loc, scales = "free_x") +
+  xlab("Site-specific mean centered average summer temperature") +
+  ylab("Z. marina presence")
+```
+
+## Run the T3 presence component GAMM
+
+```{r run-t3-presence-model}
+
+# presence model
+summary(t3_pres_mod <- gam(presence ~
+                    s(loc, bs = "re") + s(loc_quad, bs = "re") + 
+                    s(mc_avg_temp) +
+                    s(yr),
+                  data = t3_ctr_temps_cover,
+                  method = "REML",
+                  family = binomial(),
+                  select = TRUE))
+```
+
+## Plot the partial effect of centered average water temperature
+
+> The second spot where the line crosses the x-axis at 0 represents the temperature at which presence changes from 1 to 0.
+
+```{r partial-effects-presence-GAMM}
+draw(smooth_estimates(t3_pres_mod, "s(mc_avg_temp)")) +
+  geom_hline(aes(yintercept = 0), linetype = "dashed") +
+  xlab("Centered Avg. water temp") +
+  ggtitle("Eelgrass presence component GAMM") +
+  labs(subtitle = str_wrap("Plot of the presence component GAMM fitted smooth with 95% confidence interval for the effect of centered average water temperature in the preceding year on eelgrass presence.", width = 95),
+       caption = "See Fig. 4 in Plaisted et al. 2022")
+```
+
+## Get the value of temp where the partial effects plot crosses 0 and use it to un-center the water temperatures to get a threshold value for each site.
+
+```{r get-site-thresholds-from-t3-presence-model}
+
+# First, get the single value where the partial effects crosses zero for all sites 
+model_thres_all_sites <- t3_ctr_temps %>%
+  ungroup() %>%
+  nest() %>%
+  mutate(min_temp = map_dbl(data, ~min(.x$mc_avg_temp, na.rm = TRUE)),
+         max_temp = map_dbl(data, ~max(.x$mc_avg_temp, na.rm = TRUE)),
+         new_data = map2(min_temp, max_temp, ~data_slice(t3_pres_mod, mc_avg_temp = seq(.x, .y, length.out = 1000))),
+         pred = map(new_data, ~predict(t3_pres_mod, newdata = .x, type = "terms")),
+         smooth_y = map(pred, ~.x[, "s(mc_avg_temp)"]),
+         zero_crossings = map2(new_data, smooth_y, ~.x$mc_avg_temp[which(diff(sign(.y)) != 0)]),
+         dec_pres_thres = map_dbl(zero_crossings, ~.x[2])) # value of centered temp where presence switches from 1 to 0 for all sites (presence begins to decrease)
+  
+site_level_thresholds <- t3_ctr_temps %>%  
+  group_by(loc) %>% 
+  distinct(site_mean_temp) %>% # mean of mean temp for all sites
+  mutate(site_dec_pres_thres_temp = site_mean_temp + model_thres_all_sites$dec_pres_thres) # value of actual temp where presence switches from 1 to 0 for each site (presence begins to decrease)
+
+print(site_level_thresholds)
+```
+
+## Use the site-level temperature thresholds to calculate and plot thermal metrics
+
+```{r calculate-thermal-metrics}
+
+# modified from https://github.com/katiebutton/Eelgrass_Resiliency/blob/main/R/Resiliency_water_temp_siteyear_25.R
+
+# Aggregate hourly temps for each site and transect
+temp_hourly <- t3_raw_temps %>%
+  filter(month(Date) %in% 5:9) %>%
+  group_by(Name, Label, Hour = floor_date(Timestamp, "hour")) %>%
+  summarise(hourly_temp = mean(Value, na.rm = TRUE), .groups = "drop") %>%
+  left_join(., site_level_thresholds, by = c("Name" = "loc")) %>%
+  mutate(yr = year(Hour),
+         HDH_hour = pmax(hourly_temp - site_dec_pres_thres_temp, 0),
+         CDH_hour = pmin(hourly_temp - site_dec_pres_thres_temp, 0),
+         above_thres = hourly_temp > site_dec_pres_thres_temp,
+         Date = as.Date(Hour))
+
+# % time above the threshold for each site and transect
+site_pct_time_above <- temp_hourly %>%
+  group_by(Name, Label) %>%
+  summarise(site_pct_time_above = mean(above_thres)*100)
+
+# Aggregate daily temps for each site, transect, and year
+daily_data <- temp_hourly %>%
+  group_by(Name, Label, yr, Date) %>%
+  summarise(daily_HDH = sum(HDH_hour, na.rm = TRUE), # daily heating degree hours
+            daily_CDH = sum(CDH_hour, na.rm = TRUE),
+            max_temp = max(hourly_temp, na.rm = TRUE),
+            min_temp = min(hourly_temp, na.rm = TRUE),
+            mean_temp = mean(hourly_temp, na.rm = TRUE),
+            pct_time_above = mean(above_thres) * 100,
+            .groups = "drop")
+
+# Cumulative hours above threshold for each site, transect, and year
+event_hours <- temp_hourly %>%
+  arrange(Name, Label, Hour) %>%
+  group_by(Name, Label, yr) %>%
+  mutate(event_id = cumsum(above_thres & !lag(above_thres, default = FALSE))) %>%
+  filter(above_thres)
+
+# Heating events for each site, transect, and year
+warming_events <- event_hours %>%
+    group_by(Name, Label, yr, event_id) %>%
+    summarise(
+      event_start = min(Hour),
+      event_end = max(Hour),
+      duration_hours = n(),
+      duration_days = n() / 24,
+      Total_HDH = sum(HDH_hour, na.rm = TRUE),
+      max_temp = max(hourly_temp, na.rm = TRUE),
+      mean_temp = mean(hourly_temp, na.rm = TRUE),
+      .groups = "drop"
+    ) %>%
+    arrange(Name, Label, yr, desc(Total_HDH))
+
+# % time above the threshold for each site, transect, and year
+site_pct_time_above_by_year <- temp_hourly %>%
+  group_by(Name, Label, yr) %>%
+  summarise(Site_pct_time_above = mean(above_thres) * 100,
+            .groups = "drop")
+
+# Cumulative heating events for each site, transect, and year
+event_summary_by_year <- daily_data %>% 
+    distinct(Name, Label, yr) %>%          # ensures all years are present
+    left_join(
+      warming_events %>%
+        group_by(Name, Label, yr) %>%
+        summarise(
+          Number_warming_events = n(),
+          Mean_warming_event_duration_days = if (n() > 0) mean(duration_days) else 0,
+          SE_warming_event_duration_days   = if (n() > 0) sd(duration_days) / sqrt(n()) else 0,
+          .groups = "drop"
+        ),
+      by = c("Name", "Label", "yr")
+    ) %>%
+    mutate(
+      Number_warming_events            = replace_na(Number_warming_events, 0),
+      Mean_warming_event_duration_days = replace_na(Mean_warming_event_duration_days, 0),
+      SE_warming_event_duration_days   = replace_na(SE_warming_event_duration_days, 0)
+    )
+
+# Length of warmest period for each site, transect, and year
+duration_warmest_period_by_year <- daily_data %>%
+    group_by(Name, Label, yr) %>%
+    summarise(
+      Duration_warmest_period_days = {
+        rle_vals <- rle(daily_HDH > 0)
+        if (any(rle_vals$values)) max(rle_vals$lengths[rle_vals$values]) else 0
+      },
+      .groups = "drop"
+    )
+
+# Get years that meet the criteria for data inclusion for each site/transect (each year had to have a certain amount of non-missing data to be included)
+analysis_years <- readxl::read_xlsx(here::here("data", "Site_Summary_Master_b.xlsx"), sheet = "Site_Year", .name_repair = "universal") %>%
+  mutate(Site.Name = case_when(Site.Name == "Great South Bay (Ho Hum Beach)" ~ "Great South Bay",
+                               Site.Name == "Moriches Bay (Great Gun)" ~ "Moriches Bay",
+                               T ~ Site.Name)) %>%
+  select(Park.Code, Site.Name, Transect, Year, All_check) 
+
+# Get thermal metrics for each site, transect, and year
+site_summary_annual <- daily_data %>%
+  left_join(., analysis_years, by = c("Name" = "Site.Name", "Label" = "Transect", "yr" = "Year")) %>%
+  filter(All_check == "PASS") %>% # Filter to years meeting the criteria for each site/transect
+  group_by(Name, Label, yr) %>%
+  summarise(
+      date_start       = min(Date),
+      date_end         = max(Date),
+      Total_HDH        = sum(daily_HDH),
+      Total_CDH        = sum(daily_CDH),
+      Mean_HDH_daily   = mean(daily_HDH),
+      Mean_CDH_daily   = mean(daily_CDH),
+      Max_HDH_daily    = max(daily_HDH),
+      mean_temp        = mean(mean_temp),
+      max_temp         = max(max_temp),
+      min_temp         = min(min_temp),
+      n_days           = n(),
+      .groups          = "drop"
+    ) %>%
+  left_join(duration_warmest_period_by_year, by = c("Name", "Label", "yr")) %>%
+  left_join(event_summary_by_year,          by = c("Name", "Label", "yr")) %>%
+  left_join(site_pct_time_above_by_year,    by = c("Name", "Label", "yr")) %>%
+  relocate(n_days,.after = SE_warming_event_duration_days)%>%
+  arrange(Name, Label, yr) %>%
+  group_by(Name, Label) %>%
+  mutate(ninety_perc_HDH = quantile(Mean_HDH_daily, 0.90),
+         ninety_perc_CDH = quantile(Mean_CDH_daily, 0.90)) %>%
+  ungroup() %>%
+  mutate(above_90th_HDH = Mean_HDH_daily > ninety_perc_HDH,
+         above_90th_CDH = Mean_CDH_daily > ninety_perc_CDH,
+         compound_stress = above_90th_HDH & above_90th_CDH)
+
+# Get site-level average thermal metrics
+site_summary <- site_summary_annual %>%
+  group_by(Name) %>%
+  summarise(mean_time_above_thres = mean(Site_pct_time_above),
+            mean_num_warm_events = mean(Number_warming_events),
+            mean_Mean_HDH_daily = mean(Mean_HDH_daily),
+            mean_Mean_CDH_daily = mean(Mean_CDH_daily))
+
+# Plots
+ggplot(site_summary_annual, aes(x = yr, y = Mean_HDH_daily)) +
+  geom_line() +
+  geom_point(aes(color = above_90th_HDH)) +
+  facet_wrap(~Name, scales = "free_y") +
+  ggtitle("Figure 1. High heat years by site")
+
+ggplot(site_summary_annual, aes(x = yr, y = Mean_CDH_daily)) +
+  geom_line() +
+  geom_point(aes(color = above_90th_CDH)) +
+  facet_wrap(~Name, scales = "free_y") +
+  ggtitle("Figure 2. Reduced cooling years by site")
+
+ggplot(site_summary, aes(x = mean_num_warm_events, y = mean_time_above_thres)) +
+  geom_point(aes(color = Name)) +
+  annotate("text", x = 40, y = 38, label = "Episodic heat waves") +
+  annotate("text", x = 40, y = 32, label = "Low exposure") +
+  annotate("text", x = 80, y = 38, label = "Highly stressed") +
+  annotate("text", x = 80, y = 32, label = "Chronic warming") +
+  labs(
+      title    = "Figure 3. Heat Event Structure Across Coastal Parks",
+      subtitle = "Points represent site-level averages across monitoring years",
+      x = "Mean Number of Warming Events (Frequency)",
+      y = "Mean % Time Above Threshold (Duration)",
+      color = "Site"
+    )
+
+ggplot(site_summary, aes(x = mean_Mean_HDH_daily, y = mean_Mean_CDH_daily)) +
+  geom_point(aes(color = Name)) +
+  annotate("text", x = 13, y = -67, label = "stable systems") +
+  annotate("text", x = 13, y = -75, label = "thermal refugia") +
+  annotate("text", x = 17, y = -67, label = "chronic heat stress") +
+  annotate("text", x = 17, y = -75, label = "stress buffered systems") +
+  labs(
+      title    = "Figure 4. Thermal Balance Across Coastal Monitoring Sites",
+      subtitle = "Exposure vs cooling using consistent site-level averaging",
+      x = "Mean % Time Above Threshold (Thermal Exposure)",
+      y = "Mean Cooling Degree Hours (Thermal Recovery)",
+      color = "Site"
+    )
+```
+
+The last two plots really show that these threshold values don't make sense based on what we know about eelgrass conditions at these sites. First, fig 3 suggests that GSB has low exposure to heat stress and fig 4 suggests that GSB is a thermal refuge but we know this is not the case because eelgrass at GSB has been declining over the years and there is almost nothing left. Second, fig 4 shows Moriches as having chronic heat stress but we know that it is better categorized as a stress buffered system because it also gets lots of cooling from seawater flushing through the inlet. Similarly, fig 3 shows Duck Harbor as having episodic heat waves and fig 4 shows it as having chronic heat stress but we know that Duck has few heating events and also that it gets lots of cooling.
