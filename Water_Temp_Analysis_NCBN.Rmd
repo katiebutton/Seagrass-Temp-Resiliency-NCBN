@@ -220,7 +220,8 @@ plot_double_stress_by_site <- function(df, park_code) {
       nudge_x = 0.4, nudge_y = 0.6, hjust = 0, direction = "y",
       box.padding = 0.3, point.padding = 0.2
     ) +
-    geom_hline(aes(yintercept = hdh_thresh), linetype = "dashed", color = accent_red) +
+    { if(any(df$Double_Stress)) # turn off plotting of the HDH threshold line if there are no compound stress years
+    geom_hline(aes(yintercept = hdh_thresh), linetype = "dashed", color = accent_red) } +
     facet_wrap(~ Site_Name, ncol = 1, scales = "free_y") +
     scale_y_continuous(labels = label_number(accuracy = 1),
                        expand = expansion(mult = c(0.1, 0.2))) +
@@ -284,21 +285,31 @@ plot_sitelevel_thermal_stress_lines <- function(df) {
 # E) Thermal stress vs cooling (site-level scatter with size = % hot)
 plot_stress_vs_cooling <- function(df) {
   site_level <- make_site_level(df, metrics = c("Mean_HDH_daily","Mean_CDH_daily","%_abv_thres"))
-  median_HDH <- 8.8
-  median_CDH <- -94.9
+  # median_HDH <- 8.8
+  # median_CDH <- -94.9
+  # 
+  # x_low  <- median_HDH * 0.5
+  # x_high <- max(site_level$mean_HDH, na.rm = TRUE) * 0.8
+  # y_low  <- min(site_level$mean_CDH, na.rm = TRUE) * 0.8
+  # y_high <- median_CDH * 0.8
   
-  x_low  <- median_HDH * 0.5
-  x_high <- max(site_level$mean_HDH, na.rm = TRUE) * 0.8
-  y_low  <- min(site_level$mean_CDH, na.rm = TRUE) * 0.8
-  y_high <- median_CDH * 0.8
+  cluster_df <- site_level %>% # create df with only Events and Exposure for fitting k-means
+    mutate(id = paste0(Park_Code, "_", Site_Name)) %>%
+    column_to_rownames(var = "id") %>%
+    ungroup() %>%
+    dplyr::select(mean_HDH, mean_CDH)
+  
+  km_fit <- kmeans(cluster_df, centers = 4, nstart = 2) # fit k-means clusters
+  HDH_split <- mean(km_fit$centers[1:4])
+  CDH_split <- mean(km_fit$centers[5:8])
   
   plot <- ggplot(site_level, aes(x = mean_HDH, y = mean_CDH, color = Park_Code, size = pct_hot)) +
     geom_point(alpha = 0.9) +
     geom_text_repel(aes(label = Label), size = 4) +
-    geom_vline(xintercept = median_HDH, linetype = "dashed", color = grey_grid) +
-    geom_hline(yintercept = median_CDH, linetype = "dashed", color = grey_grid) +
-    expand_limits(x = max(site_level$mean_HDH, na.rm = TRUE) * 1.2,
-                  y = min(site_level$mean_CDH, na.rm = TRUE) * 1.2) +
+    geom_vline(xintercept = HDH_split, linetype = "dashed", color = grey_grid) +
+    geom_hline(yintercept = CDH_split, linetype = "dashed", color = grey_grid) +
+    # expand_limits(x = max(site_level$mean_HDH, na.rm = TRUE) * 1.2,
+    #               y = min(site_level$mean_CDH, na.rm = TRUE) * 1.2) +
     scale_park_color() +
     guides(color = guide_legend(override.aes = list(alpha = 1, size = 4))) +
     labs(
@@ -315,10 +326,10 @@ plot_stress_vs_cooling <- function(df) {
   y_limits <- plot_build$layout$panel_params[[1]]$y$continuous_range
   
   plot +
-    annotate("text", x = x_limits[1] + ((median_HDH - x_limits[1])/2), y = median_CDH + ((y_limits[2] - median_CDH)/2), vjust = 0.5, hjust = 0.5, label = "Stable Systems", size = 4.5, fontface = "bold") +
-    annotate("text", x = x_limits[1] + ((median_HDH - x_limits[1])/2), y = y_limits[1] + ((median_CDH - y_limits[1])/2), vjust = 0.5, hjust = 0.5, label = "Thermal Refugia", size = 4.5, fontface = "bold") +
-    annotate("text", x = median_HDH + ((x_limits[2] - median_HDH)/2), y = median_CDH + ((y_limits[2] - median_CDH)/2), vjust = 0.5, hjust = 0.5, label = "Chronic Heat Stress", size = 4.5, fontface = "bold") +
-    annotate("text", x = median_HDH + ((x_limits[2] - median_HDH)/2), y = y_limits[1] + ((median_CDH - y_limits[1])/2), vjust = 0.5, hjust = 0.5, label = "Stress Buffered Systems", size = 4.5, fontface = "bold")
+    annotate("text", x = x_limits[1] + ((HDH_split - x_limits[1])/2), y = CDH_split + ((y_limits[2] - CDH_split)/2), vjust = 0.5, hjust = 0.5, label = "Stable Systems", size = 4.5, fontface = "bold") +
+    annotate("text", x = x_limits[1] + ((HDH_split - x_limits[1])/2), y = y_limits[1] + ((CDH_split - y_limits[1])/2), vjust = 0.5, hjust = 0.5, label = "Thermal Refugia", size = 4.5, fontface = "bold") +
+    annotate("text", x = HDH_split + ((x_limits[2] - HDH_split)/2), y = CDH_split + ((y_limits[2] - CDH_split)/2), vjust = 0.5, hjust = 0.5, label = "Chronic Heat Stress", size = 4.5, fontface = "bold") +
+    annotate("text", x = HDH_split + ((x_limits[2] - HDH_split)/2), y = y_limits[1] + ((CDH_split - y_limits[1])/2), vjust = 0.5, hjust = 0.5, label = "Stress Buffered Systems", size = 4.5, fontface = "bold")
   
 }
 
@@ -440,7 +451,7 @@ plot_thermal_balance_transect <- function(df) {
 
 Eelgrass (*Zostera marina*) is a foundational marine plant that supports healthy coastal ecosystems. It improves water quality, stabilizes sediments, provides habitat for fish and invertebrates, and acts as a globally important carbon sink ([Novak et al. 2023](#refs)).Because eelgrass responds quickly to changes in its environment, it is often considered a “canary in the coal mine” for coastal health ([Orth et al. 2006](#refs)). Its ecological significance is one reason the Northeast Coastal and Barrier Network (NCBN) monitors seagrass conditions over time, especially as concerns rise about the effects of warming waters.
 
-In recent decades, eelgrass along the Northeast U.S. coast has experienced water temperatures that approach or exceed known physiological limits ([Nagel et. al 2025a,b,c](#refs)). When water becomes too warm, eelgrass respiration increases faster than photosynthesis, creating stress on the plants. Studies show that temperatures above 25 °C increase the likelihood of eelgrass mortality, and sustained exposure above 30 °C has led to complete die offs in areas such as Chesapeake Bay ([Jarvis & Moore 2010](#refs), [Novak et al. 2023](#refs)). Long term temperature records from New Hampshire to Maryland indicate that warmer summers are consistently followed by lower eelgrass presence in the next year ([Plaisted et al. 2022](#refs)). When high temperature events persist without cooling relief periods, eelgrass loses the opportunity to recover from heat stress. Repeated summers with limited relief causes stress to accumulate and increases the risk of widespread decline. 
+In recent decades, eelgrass along the Northeast U.S. coast has experienced water temperatures that approach or exceed known physiological limits ([Nagel et. al 2025a,b,c](#refs)). When water becomes too warm, eelgrass respiration increases faster than photosynthesis, creating stress on the plants. Studies show that temperatures above 25 °C increase the likelihood of eelgrass mortality, and sustained exposure above 30 °C has led to complete die offs in areas such as Chesapeake Bay ([Jarvis & Moore 2010](#refs), [Novak et al. 2023](#refs)). Long term temperature records from New Hampshire to Maryland indicate that warmer summers are consistently followed by lower eelgrass presence in the next year ([Plaisted et al. 2022](#refs)). When high temperature events persist without cooling relief periods, eelgrass loses the opportunity to recover from heat stress. Repeated summers with limited relief causes stress to accumulate and increases the risk of widespread decline.
 
 These patterns of warmer summers, increased physiological stress, and fewer opportunities for recovery align with broader climate driven trends. Marine heatwaves, periods when water temperatures exceed the 90^th^ percentile of a 30 year baseline, have become more frequent and more intense ([Hobday etl al 2016](#refs)). Such events have already affected corals, kelp forests, and seagrasses worldwide. Research shows that eelgrass meadows experiencing both high heat and little cooling tend to lose shoot density and canopy height, while sites that receive periodic cooling are better able to recover between heat events ([Berger et al. 2024](#refs)).
 
@@ -511,7 +522,11 @@ Prior to analyses, temperature data were first filtered to the months from May-S
 
 ### Novel Thermal Metrics for Eelgrass
 
-For eelgrass, prolonged exposure to high temperatures can lead to physiological stress where respiration outpaces photosynthesis. To describe long-term thermal conditions in eelgrass meadows, we calculated two site-level yearly metrics from the continuous water temperature data: **heating degree hours (HDH)** and **cooling degree hours (CDH)** ([Berger et al. 2024](#refs)). HDH is calculated by first summing the total number of hours above a park-specific temperature threshold across the focal months (May to September) to get the total HDH per year. The total HDH values are then divided by the sum of all hours in the period of record for each year to get the mean HDH per year. Similarly, mean CDH for each year is calculated using the same method but for the number of hours below the site-specific temperature threshold. We applied a threshold of 25 °C for northern sites (CACO and FIIS) and 28.6 °C for southern sites (ASIS) ([Berger and Berg 2024](#refs)) based on known values of eelgrass thermal tolerance reported in peer-reviewed literature. Thus, these metrics capture not just how hot or cold the water gets, but how long water temperatures remain above or below a biological threshold. When examined together, HDH and CDH help to understand the factors controlling eelgrass loss and recovery across coastal National Parks in the northeast (Figure 1).
+For eelgrass, prolonged exposure to high temperatures can lead to physiological stress where respiration outpaces photosynthesis. To describe long-term thermal conditions in eelgrass meadows, we calculated two site-level yearly metrics from the continuous water temperature data: **heating degree hours (HDH)** and **cooling degree hours (CDH)** ([Berger et al. 2024](#refs)). HDH is calculated by first summing the total number of hours above a park-specific temperature threshold across the focal months (May to September) to get the total HDH per year. The total HDH values are then divided by the sum of all hours in the period of record for each year to get the mean HDH per year. Similarly, mean CDH for each year is calculated using the same method but for the number of hours below the park-specific temperature threshold.
+
+Park-specific temperature thresholds were calculated from the filtered water temperature data described in the previous section. We first calculated the mean monthly temperature for each month between May to September across all years for each transect at each site (i.e., transect-level mean monthly temperatures). Then, we calculated the maximum of the transect-level mean monthly temperatures for each site. Note that we choose to use maximum temperatures because the distribution of seagrasses (and many other vegetation communities - such as mangroves) have been shown to be controlled in part by the frequency and intensity of climate extremes (citations), which are also likely to be altered by climate change (citations). Finally, we averaged the maximum mean monthly temperature from the site with the lowest value and the site with the highest value within each park to get park-specific temperature threshold values. We calculated park-specific temperature thresholds of 24.6 °C for CACO, 26.3°C for FIIS, and 28.4°C for ASIS. Notably, these park-specific temperature thresholds are extremely similar to known values of eelgrass thermal tolerance reported in peer-reviewed literature (e.g., [Berger & Berg 2024](https://doi.org/10.3354/meps14587), [Moore & Jarvis 2008](https://doi.org/10.2112/SI55-014), [Carr et al. 2012](https://doi.org/10.3354/meps09556), [Shields et al. 2018](https://doi.org/10.3390/d10040125)).
+
+Thus, these metrics capture not just how hot or cold the water gets, but how long water temperatures remain above or below a biological threshold. When examined together, HDH and CDH help to understand the factors controlling eelgrass loss and recovery across coastal National Parks in the northeast (Figure 1).
 
 ```{r concepts, echo=FALSE, warning=FALSE, fig.show='hold', fig.width=4, fig.height=3, fig.cap="Figure 1. Conceptualized diagrams demonstrating how yearly heating degree hours (HDH) and cooling degree hours (CDH) are calculated for each site."}
 ### HDH and CDH Concept##
@@ -716,6 +731,7 @@ plot_stress_vs_cooling(dat)
 The balance between heat stress events and cooling recovery also varies across the region and within parks. Pleasant Bay and Moriches Bay receive some of the strongest cooling periods among the chronically warm sites, second only to the fully open tidal systems on Cape Cod. This pattern reflects their position relative to inlets where tidal flushing brings in cooler ocean water that helps moderate warmer temperatures and sustain populations of eelgrass. In contrast, sites with more limited flushing, like Great South Bay and East Harbor, show weaker cooling relief consistent with restricted or partially restored flow. These sites match site conditions that no longer support eelgrass. Tingles Island falls between these two outcomes as it receives little cooling, sits between a stable and thermal refugia zone, and supports sparse eelgrass populations.
 
 # Key Takeaways
+
 ```{r, echo=FALSE, results='asis'}
 
 if (params$park == "ASIS") {
@@ -757,20 +773,16 @@ While this analysis focuses on thermal condition alone, other water quality fact
 In parallel with these environmental assessments, NPS scientists and partners are using genomics to better understand why some eelgrass populations can withstand warming while other decline. By sequencing plants from Maine to North Carolina, we can identify genetic differences linked to heat tolerance and local adaptation. These results will guide future restoration planning and identify donor populations for transplanting seeds to help vulnerable meadows keep pace with rising sea temperatures.
 
 > **🟦 Network‑Wide Key Takeaways**
-> 
-> • Across NCBN coastal parks, eelgrass beds experience a wide range of thermal conditions, from sites with prolonged, cumulative heat exposure to sites with strong cooling capacity.  
-> 
-> • Understanding both heating intensity and cooling relief provides essential context for interpreting long‑term eelgrass trends, genomic thermal tolerance, and vulnerability to climate‑driven change.  
-> 
-> • Applying thermal metrics alongside genomic data will help identify populations with potential heat tolerance and strengthen site‑selection models for restoration and transplanting.  
-> 
+>
+> • Across NCBN coastal parks, eelgrass beds experience a wide range of thermal conditions, from sites with prolonged, cumulative heat exposure to sites with strong cooling capacity.
+>
+> • Understanding both heating intensity and cooling relief provides essential context for interpreting long‑term eelgrass trends, genomic thermal tolerance, and vulnerability to climate‑driven change.
+>
+> • Applying thermal metrics alongside genomic data will help identify populations with potential heat tolerance and strengthen site‑selection models for restoration and transplanting.
+>
 > • Integrating eelgrass distribution from long‑term transects with temperature patterns will help parks diagnose change, identify drivers of decline, and prioritize management actions.
->
-> 
->
 
 *These thermal metrics are part of an ongoing collaborative project and represent a novel approach to characterizing eelgrass stress across NCBN parks. Thresholds linking these metrics to genomic patterns and adaptive capacity are still being refined in coordination with project cooperators. Readers can learn more about the broader genomics effort, restoration framework, and supporting documentation on the [Resilient Eelgrass Project Sharepoint](https://doimspp.sharepoint.com/:u:/r/sites/nps-ncbn/SitePages/Seagrass-Resilience-%26-Restoration.aspx?csf=1&web=1&e=nbw5PA).*
-
 
 # References
 
@@ -780,8 +792,7 @@ Berger A.C., Berg P., McGlathery K.J., Aoki L.R., & Kerns K. (2024) Eelgrass mea
 
 Hartigan, J.A. & Wong, M.A. (1979) Algorithm AS 136: A k-means clustering algorithm. Applied Statistics 28:100-108. <https://doi.org/10.2307/2346830>
 
-Hobday AJ, Alexander LV, Perkins SE, Smale DA and others. (2016) A hierarchical approach to defining marine heatwaves. Prog Oceanogr 141: 227– 238.
-<https://doi.org/10.1016/j.pocean.2015.12.014>
+Hobday AJ, Alexander LV, Perkins SE, Smale DA and others. (2016) A hierarchical approach to defining marine heatwaves. Prog Oceanogr 141: 227– 238. <https://doi.org/10.1016/j.pocean.2015.12.014>
 
 Jarvis, J.C. & Moore, K.A. (2010) The role of the photosynthetic pathway in the acclimation of Zostera marina to light and temperature stress. Journal of Experimental Marine Biology and Ecology 395:105–110.
 
@@ -789,11 +800,9 @@ Kopp, B.S., & Neckles, H.A. (2009) A protocol for monitoring estuarine nutrient 
 
 Nagel, J. L., H. K. Plaisted, C. P. Peck, and P. Duffy. 2025a. Condition and trends of estuarine water quality and seagrass in Assateague Island National Seashore: Northeast Coastal and Barrier Network, 2005–2022. Science Report NPS/SR—2025/273. National Park Service, Fort Collins, Colorado. <https://doi.org/10.36967/2310561>
 
-Nagel, J. L., H. K. Plaisted, C. P. Peck, and P. Duffy. 2025b. Condition and trends of estuarine water quality and seagrass in Cape Cod National Seashore: Northeast Coastal and Barrier Network, 2003–2022. Science Report NPS/SR—2025/267. National Park Service, Fort Collins, Colorado. <
-<https://doi.org/10.36967/2310108>
+Nagel, J. L., H. K. Plaisted, C. P. Peck, and P. Duffy. 2025b. Condition and trends of estuarine water quality and seagrass in Cape Cod National Seashore: Northeast Coastal and Barrier Network, 2003–2022. Science Report NPS/SR—2025/267. National Park Service, Fort Collins, Colorado. \< <https://doi.org/10.36967/2310108>
 
-Nagel, J. L., H. K. Plaisted, C. P. Peck, and P. Duffy. 2025c. Condition and trends of estuarine water quality and seagrass in Fire Island National Seashore: Northeast Coastal and Barrier Network, 2003–2022. Science Report NPS/SR—2025/294. National Park Service, Fort Collins, Colorado.
-<https://doi.org/10.36967/2311455>
+Nagel, J. L., H. K. Plaisted, C. P. Peck, and P. Duffy. 2025c. Condition and trends of estuarine water quality and seagrass in Fire Island National Seashore: Northeast Coastal and Barrier Network, 2003–2022. Science Report NPS/SR—2025/294. National Park Service, Fort Collins, Colorado. <https://doi.org/10.36967/2311455>
 
 Novak, A.B., Plaisted, H.K., Hughes, Z.J., Mittermayr, A., & Molden, E. (2023) Eelgrass (<i>Zostera marina L.</i>) populations are threatened by high sea-surface temperatures and impaired waters on Nantucket Island, USA. Marine Pollution Bulletin 197:115689. <https://doi.org/10.1016/j.marpolbul.2023.115689>
 
