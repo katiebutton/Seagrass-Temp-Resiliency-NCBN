@@ -449,23 +449,22 @@ plot_thermal_balance_transect <- function(df) {
 
 ## Eelgrass Importance and Vulnerability
 
-Eelgrass (*Zostera marina*) is a foundational marine plant that supports healthy coastal ecosystems. It improves water quality, stabilizes sediments, provides habitat for fish and invertebrates([Orth et. al 2006](#refs), [Hemminga and Duarte 2000](#refs), [Orth et al. 2020](#refs)), and functions as both a global and local carbon sink ([Sogin et al. 2022](#refs), [Fourqurean et al. 2012](#refs), [Novak et al. 2020](#refs)). Because eelgrass responds quickly to environmental change, it is often considered a “canary in the coal mine” for coastal health ([Orth et al. 2006](#refs)). Its ecological significance is one reason the Northeast Coastal and Barrier Network (NCBN) monitors seagrass condition over time, especially as concerns grow about the effects of warming waters. 
+Eelgrass (*Zostera marina*) is a foundational marine plant that supports healthy coastal ecosystems. It improves water quality, stabilizes sediments, provides habitat for fish and invertebrates ([Orth et. al 2006](#refs), [Hemminga and Duarte 2000](#refs), [Orth et al. 2020](#refs)), and functions as both a global and local carbon sink ([Sogin et al. 2022](#refs), [Fourqurean et al. 2012](#refs), [Novak et al. 2020](#refs)). Because eelgrass responds quickly to environmental change, it is often considered a “canary in the coal mine” for coastal health ([Orth et al. 2006](#refs)). Its ecological significance is one reason the Northeast Coastal and Barrier Network (NCBN) monitors seagrass condition over time, especially as concerns grow about the effects of warming waters.
 
 ```{r, echo=FALSE, results='asis'}
 
 if (params$park == "ASIS"| params$park=="FIIS") {
   cat("
 
-Although *Zostera marina* is the dominant seagrass species in most Northeast Coastal and Barrier Parks, widgeon grass (*Ruppia maritima* ) also occurs at Assateague Island National Seashore (ASIS) and Fire Island National Seashore (FIIS). While *Ruppia* is not the primary focus of this analysis, it can respond differently to warming conditions, and studies have documented shifts from *Zostera* to *Ruppia* following warm summers, suggesting that rising temperatures may alter seagrass community composition over time ([Shields et al. 2019](#refs))
+Although *Zostera marina* is the dominant seagrass species in most Northeast Coastal and Barrier Network parks, widgeon grass (*Ruppia maritima*) also occurs at Assateague Island National Seashore (ASIS) and Fire Island National Seashore (FIIS). While *Ruppia* is not the primary focus of this analysis, it can respond differently to warming conditions, and studies have documented shifts from *Zostera* to *Ruppia* following warm summers, suggesting that rising temperatures may alter seagrass community composition over time ([Shields et al. 2019](#refs))
 
 ")
 }
 ```
 
+Globally, sea surface temperatures (SST) have increased significantly over the past century and are projected to continue rising in the 21st century ([IPCC, 2023](#refs)). In recent decades, eelgrass in park units along the Northeast U.S. coast have experienced water temperatures that approach or exceed known physiological limits ([Nagel et. al 2025a,b,c](#refs)). When water becomes too warm, eelgrass respiration outpaces photosynthesis, creating physiological stress that can lead to mortality; conversely, cooling periods allow these processes to rebalance, enabling plants to rebuild carbohydrate reserves needed for growth, biomass, and winter survival ([Lee et al. 2007](#refs), [Marín-Guirao et al. 2016](#refs), [Marsh et al. 1986](#refs)). Studies show that temperatures above 25 °C increase the likelihood of eelgrass mortality, and sustained exposure above 30 °C has caused complete die offs in areas such as Chesapeake Bay ([Jarvis & Moore 2010](#refs), [Novak et al. 2023](#refs)). Long term temperature records from New Hampshire to Maryland show that warmer than average summers are consistently followed by reduced eelgrass presence in the following year ([Plaisted et al. 2022](#refs)). When high temperature events persist without cooling relief, eelgrass loses the opportunity to recover from heat stress, causing stress to accumulate and increasing the risk of widespread decline ([Berger et al. 2024](#refs)).
 
-Globally, sea surface temperatures (SST) have increased significantly over the past century and are projected to continue rising in the 21st century ([IPCC, 2023](#refs)). In recent decades, eelgrass in park units along the Northeast U.S. coast has experienced water temperatures that approach or exceed known physiological limits ([Nagel et. al 2025a,b,c](#refs)). When water becomes too warm, eelgrass respiration outpaces photosynthesis, creating physiological stress that can lead to mortality; conversely, cooling periods allow these processes to rebalance, enabling plants to rebuild carbohydrate reserves needed for growth,biomass, and winter survival ([Lee et al. 2007](#refs), [Marín-Guirao et al. 2016](#refs), [Marsh et al. 1986](#refs)). Studies show that temperatures above 25 °C increase the likelihood of eelgrass mortality, and sustained exposure above 30 °C has caused complete die offs in areas such as Chesapeake Bay ([Jarvis & Moore 2010](#refs), [Novak et al. 2023](#refs)). Long term temperature records from New Hampshire to Maryland show that warmer than average summers are consistently followed by reduced eelgrass presence in the following year ([Plaisted et al. 2022](#refs)). When high temperature events persist without cooling relief, eelgrass loses the opportunity to recover from heat stress, causing stress to accumulate and increasing the risk of widespread decline ([Berger et al. 2024](#refs)).
-
-These patterns of warmer summers, increased physiological stress, and fewer opportunities for recovery reflect broader climate driven trends. Marine heatwaves, periods when water temperatures exceed the 90^th^ percentile of a 30 year baseline, have become more frequent and intense ([Hobday etl al 2016](#refs)). Such events have already affected corals, kelp forests, and seagrasses worldwide ([Smale et al. 2019](#refs)). Research shows that eelgrass meadows experiencing both high heat and minimal cooling tend to lose shoot density and canopy height, while sites that receive periodic cooling recover more effectively between heat events ([Berger et al. 2024](#refs)).
+These patterns of warmer summers, increased physiological stress, and fewer opportunities for recovery reflect broader climate driven trends. Marine heatwaves, periods when water temperatures exceed the 90^th^ percentile of a 30 year baseline, have become more frequent and intense ([Hobday et al 2016](#refs)). Such events have already affected corals, kelp forests, and seagrasses worldwide ([Smale et al. 2019](#refs)). Research shows that eelgrass meadows experiencing both high heat and minimal cooling tend to lose shoot density and canopy height, while sites that receive periodic cooling recover more effectively between heat events ([Berger et al. 2024](#refs)).
 
 Cumulative heat stress metrics are widely used to understand ecosystem and species-level impacts. NOAA’s Degree Heating Weeks (DHW) index, for example, tracks how often and for how long temperatures exceed thresholds that lead to coral bleaching and mortality ([Skirving et al. 2020](#refs)). These metrics emphasize that it is the accumulation of heat over time, not single temperature spikes, that often drive ecosystem decline. This same concept is directly relevant to eelgrass.
 
@@ -475,7 +474,7 @@ Characterizing the temperature regimes that influence eelgrass heat stress and r
 2.  Determine where these conditions overlapped to create compounded “stress years,” and
 3.  Compare thermal regimes across eelgrass meadows in parks to understand regional vulnerability.
 
-While temperature is a key driver of eelgrass stress and recovery, it operates alongside other environmental factors including water clarity, nutrients, salinity, dissolved oxygen, that together shape meadow condition ([Lefcheck et al. 2017](#refs), [Dunic and Cote, 2023](#refs), [Moore et al. 2012](#refs)). This report focuses on characterizing thermal regimes as a foundational step. Future analyses will explore how temperature interacts with these additional factors drive patterns in eelgrass condition across NCBN parks. 
+While temperature is a key driver of eelgrass stress and recovery, it operates alongside other environmental factors including water clarity, nutrients, salinity, and dissolved oxygen, that together shape meadow conditions ([Lefcheck et al. 2017](#refs), [Dunic and Cote, 2023](#refs), [Moore et al. 2012](#refs)). This report focuses on characterizing thermal regimes as a foundational step. Future analyses will explore how temperature interacts with these additional factors to drive patterns in eelgrass condition across NCBN parks.
 
 # Methods
 
@@ -538,7 +537,7 @@ Prior to analyses, temperature data were first filtered to the months from May-S
 
 For eelgrass, prolonged exposure to high temperatures can lead to physiological stress where respiration outpaces photosynthesis. To describe long-term thermal conditions in eelgrass meadows, we calculated two site-level yearly metrics from the continuous water temperature data: **heating degree hours (HDH)** and **cooling degree hours (CDH)** ([Berger et al. 2024](#refs)). HDH is calculated by first summing the total number of hours above a park-specific temperature threshold across the focal months (May to September) to get the total HDH per year. The total HDH values are then divided by the sum of all hours in the period of record for each year to get the mean HDH per year. Similarly, mean CDH for each year is calculated using the same method but for the number of hours below the park-specific temperature threshold.
 
-Park-specific temperature thresholds were calculated from the filtered water temperature data described in the previous section. We first calculated the mean monthly temperature for each month between May to September across all years for each transect at each site (i.e., transect-level mean monthly temperatures). Then, we calculated the maximum of the transect-level mean monthly temperatures for each site. Note that we choose to use maximum temperatures because the distribution of seagrasses (and many other vegetation communities - such as mangroves) have been shown to be controlled in part by the frequency and intensity of climate extremes (citations), which are also likely to be altered by climate change (citations). Finally, we averaged the maximum mean monthly temperature from the site with the lowest value and the site with the highest value within each park to get park-specific temperature threshold values. We calculated park-specific temperature thresholds of 24.6 °C for CACO, 26.3°C for FIIS, and 28.4°C for ASIS. Notably, these park-specific temperature thresholds are extremely similar to known values of eelgrass thermal tolerance reported in peer-reviewed literature (e.g., [Berger & Berg 2024](https://doi.org/10.3354/meps14587), [Moore & Jarvis 2008](https://doi.org/10.2112/SI55-014), [Carr et al. 2012](https://doi.org/10.3354/meps09556), [Shields et al. 2018](https://doi.org/10.3390/d10040125)).
+Park-specific temperature thresholds were calculated from the filtered water temperature data described in the previous section. We first calculated the mean monthly temperature for each month between May to September across all years for each transect at each site (i.e., transect-level mean monthly temperatures). Then, we calculated the maximum of the transect-level mean monthly temperatures for each site. Note that we choose to use maximum temperatures because the distribution of seagrasses (and many other vegetation communities - such as mangroves) have been shown to be controlled in part by the frequency and intensity of climate extremes ([Germain & Lutz 2020](#refs), [Osland et al. 2017](#refs), [Parmesan et al. 2000](#refs), [Zimmermann et al. 2009](#refs)), which are also expected to increase due to climate change ([Easterling et al. 2000](#refs), [IPCC 2013](#refs), [Jentsch & Beierkuhnlein 2008](#refs), [Meehl & Tebaldi 2004](#refs)). Finally, we averaged the maximum mean monthly temperature from the site with the lowest value and the site with the highest value within each park to get park-specific temperature threshold values. We calculated park-specific temperature thresholds of 24.6 °C for CACO, 26.3°C for FIIS, and 28.4°C for ASIS. Notably, these park-specific temperature thresholds are extremely similar to known values of eelgrass thermal tolerance reported in peer-reviewed literature (e.g., [Berger & Berg 2024](https://doi.org/10.3354/meps14587), [Carr et al. 2012](#refs), [Lee et al. 2007](#refs), [Moore & Jarvis 2008](https://doi.org/10.2112/SI55-014), [Novak et al. 2023](#refs), [Shields et al. 2018](https://doi.org/10.3390/d10040125)).
 
 Thus, these metrics capture not just how hot or cold the water gets, but how long water temperatures remain above or below a biological threshold. When examined together, HDH and CDH help to understand the factors controlling eelgrass loss and recovery across coastal National Parks in the northeast (Figure 1).
 
@@ -732,7 +731,7 @@ In contrast, Tingles Island at ASIS experiences heat stress much more often, and
 
 FIIS sites fall between these two extremes. Heat‑stress conditions vary widely across the park, depending on where each site is located. For example, Moriches Bay shows short, frequent warming events, while Great South Bay experiences longer or more sustained heat episodes. This mix reflects the diversity of habitats and local conditions across Fire Island.
 
-These results show that sites across the regional scale experience different heat stress conditions and even sites within the same park respond in different ways. This raises an important questions that will require further data collection and analysis: **how are some of the most chronically stressed sites, like Moriches Bay, Pleasant Bay, and Tingles Island still able to support eelgrass populations?**
+These results show that sites across the region experience different heat stress conditions and that even sites within the same park respond in different ways. This raises an important questions that will require further data collection and analysis: **how are some of the most chronically stressed sites, like Moriches Bay, Pleasant Bay, and Tingles Island still able to support eelgrass populations?**
 
 ## What are the impacts of cooling?
 
@@ -742,7 +741,7 @@ Now that we've seen sites experience heat stress differently, we can look at coo
 plot_stress_vs_cooling(dat)
 ```
 
-The balance between heat stress events and cooling recovery also varies across the region and within parks. Pleasant Bay and Moriches Bay receive some of the strongest cooling periods among the chronically warm sites, second only to the fully open tidal systems on Cape Cod. This pattern reflects their position relative to inlets where tidal flushing brings in cooler ocean water that helps moderate warmer temperatures and sustain populations of eelgrass. In contrast, sites with more limited flushing, like Great South Bay and East Harbor, show weaker cooling relief consistent with restricted or partially restored flow. These sites match site conditions that no longer support eelgrass. Tingles Island falls between these two outcomes as it receives little cooling, sits between a stable and thermal refugia zone, and supports sparse eelgrass populations.
+The balance between heat stress and cooling recovery also varies across the region and within parks. Pleasant Bay and Moriches Bay receive some of the strongest cooling periods among the chronically warm sites, second only to the fully open tidal systems on Cape Cod. This pattern reflects their position relative to inlets where tidal flushing brings in cooler ocean water that helps moderate warmer temperatures and sustain populations of eelgrass. In contrast, sites with more limited flushing, like Great South Bay and East Harbor, show weaker cooling relief consistent with restricted or partially restored flow. These sites match site conditions that no longer support eelgrass. Tingles Island falls between these two outcomes as it receives little cooling, sits between a stable and thermal refugia zone, and supports sparse eelgrass populations.
 
 # Key Takeaways
 
@@ -752,9 +751,9 @@ if (params$park == "ASIS") {
   cat("
 ### ASIS Key Takeaways
 
-Across NCBN parks, Tingles Island stands out as one of the most heat-stressed locations due to frequent and prolonged heat events that accumulate throughout the season. This thermal pattern is expected given its southern latitude relative to FIIS (NY) and CACO (MA).  The Tingles Island transect supports only sparse eelgrass populations, reflecting moderate cooling, but still challenging environment compared to denser sites like Pleasant Bay and Moriches Bay. 
+Across NCBN parks, Tingles Island stands out as one of the most heat-stressed locations due to frequent and prolonged heat events that accumulate throughout the season. This thermal pattern is expected given its southern latitude relative to FIIS (NY) and CACO (MA). The Tingles Island transect supports only sparse eelgrass populations, reflecting moderate cooling, but is still a challenging environment compared to denser sites like Pleasant Bay and Moriches Bay. 
 
-While this analysis focuses on thermal conditions alone, other water quality factors like dissolved oxygen, turbidity, salinity, and pH also play a key role in shaping eelgrass health. At Tingles Island, long- term trend reports show significant declines in eelgrass conditions (canopy height, biomass, and percent cover, shoot density, and biomass ratios), trends driven by a combination of chronically poor water quality and heat stress (Nagel et al. 2025a). Together these observations point to ecological pressure on the system.
+While this analysis focuses on thermal conditions alone, other water quality factors like dissolved oxygen, turbidity, salinity, and pH also play a key role in shaping eelgrass health. At Tingles Island, long-term trend reports show significant declines in eelgrass conditions (canopy height, biomass, and percent cover, shoot density, and biomass ratios) driven by a combination of chronically poor water quality and heat stress (Nagel et al. 2025a). Together, these observations point to ecological pressure on the system.
 
 ")
 }
@@ -767,7 +766,7 @@ if (params$park == "FIIS") {
 
 Across NCBN parks, Great South Bay is one of the most heat-stressed locations experiencing frequent and prolonged heat events that accumulate throughout the season. This SeagrassNet site currently supports no eelgrass, while nearby Moriches Bay maintains dense eelgrass beds and experiences shorter heat waves due to its greater cooling capacity. 
 
-While this analysis focuses on thermal condition alone, other water quality factors like dissolved oxygen, turbidity, salinity, and pH also play a key role in shaping eelgrass health. At Great South Bay, long term trend reports show a stark decline in eelgrass condition across all three transects from 2007 to 2011 (Nagel et. al 2025c). This decline is likely driven by poor water clarity combined with prolonged summer temperatures exceeding 25 degrees Celsius. Together these conditions point to ecological pressure on the system. 
+While this analysis focuses on thermal condition alone, other water quality factors like dissolved oxygen, turbidity, salinity, and pH also play a key role in shaping eelgrass health. At Great South Bay, long term trend reports show a stark decline in eelgrass condition across all three transects from 2007 to 2011 (Nagel et. al 2025c). This decline is likely driven by poor water clarity combined with prolonged summer temperatures exceeding 25 degrees Celsius. Together, these conditions point to ecological pressure on the system. 
 
 ")
 }
@@ -784,7 +783,7 @@ While this analysis focuses on thermal condition alone, other water quality fact
 }
 ```
 
-In parallel with these environmental assessments, NPS scientists and partners are using genomics to better understand why some eelgrass populations can withstand warming while other decline. By sequencing plants from Maine to North Carolina, we can identify genetic differences linked to heat tolerance and local adaptation. These results will guide future restoration planning and identify donor populations for transplanting seeds to help vulnerable meadows keep pace with rising sea temperatures.
+In parallel with these environmental assessments, NPS scientists and partners are using genomics to better understand why some eelgrass populations can withstand warming while others decline. By sequencing plants from Maine to North Carolina, we can identify genetic differences linked to heat tolerance and local adaptation. These results will guide future restoration planning and identify donor populations for transplanting seeds to help vulnerable meadows keep pace with rising sea temperatures.
 
 > **🟦 Network‑Wide Key Takeaways**
 >
@@ -804,53 +803,73 @@ Berger, A.C. & Berg, P. (2024) Eelgrass meadow response to heat stress. I. Tempe
 
 Berger A.C., Berg P., McGlathery K.J., Aoki L.R., & Kerns K. (2024) Eelgrass meadow response to heat stress. II. Impacts of ocean warming and marine heatwaves measured by novel metrics. Marine Ecology Progress Series 736:47-62. <https://doi.org/10.3354/meps14588>
 
-Dunic, J. C., & Côté, I. M. (2023). Management thresholds shift under the influence of multiple stressors: eelgrass meadows as a case study. Conservation Letters, 16(2), e12938.
+Carr, J.A., D'Odorico, P., McGlathery, K.J., & Wiberg, P.L. (2012) Modeling the effects of climate change on eelgrass stability and resilience: Future scenarios and leading indicators of collapse. Marine Ecology Progress Series 448:289-301. <https://doi.org/10.3354/meps09556>
 
-Fourqurean, J. W., Duarte, C. M., Kennedy, H., Marbà, N., Holmer, M., Mateo, M. A., ... & Serrano, O. (2012). Seagrass ecosystems as a globally significant carbon stock. Nature geoscience, 5(7), 505-509.
+Dunic, J.C., & Côté, I.M. (2023) Management thresholds shift under the influence of multiple stressors: eelgrass meadows as a case study. Conservation Letters 16:e12938. <https://doi.org/10.1111/conl.12938>
 
-Hartigan, J.A. & Wong, M.A. (1979) Algorithm AS 136: A k-means clustering algorithm. Applied Statistics 28:100-108. <https://doi.org/10.2307/2346830>
+Easterling, D.R., Meehl, G.A., Parmesan, C., Changnon, S.A., Karl, T.R., & Mearns, L.O. (2000) Climate extremes: Observations, modeling, and impacts. Science 289:2068-2075. <https://doi.org/10.1126/science.289.5487.2068>
 
-Hobday AJ, Alexander LV, Perkins SE, Smale DA and others. (2016) A hierarchical approach to defining marine heatwaves. Prog Oceanogr 141: 227– 238. <https://doi.org/10.1016/j.pocean.2015.12.014>
+Fourqurean, J.W., Duarte, C.M., Kennedy, H., Marbà, N., Holmer, M., Mateo, M.A., Apostolaki, E.T., Kendrick, G.A., Krause-Jensen, D., McGlathery, K.J., & Serrano, O. (2012) Seagrass ecosystems as a globally significant carbon stock. Nature Geoscience 5:505-509. <https://doi.org/10.1038/ngeo1477>
 
-Hemminga, M. A., & Duarte, C. M. (2000). Seagrass ecology. Cambridge University Press.
+Germain, S.J., & Lutz, J.A. (2020) Climate extremes may be more important than climate means when predicting species range shifts. Climate Change 163:579-598. <https://doi.org/10.1007/s10584-020-02868-2>
 
-IPCC, 2023: Climate Change 2023: Synthesis Report. Contribution of Working Groups I, II and III to the Sixth Assessment Report of the Intergovernmental Panel on Climate Change [Core Writing Team, H. Lee and J. Romero (eds.)]. IPCC, Geneva, Switzerland, 184 pp. https://doi.org/10.59327/IPCC/AR6-9789291691647.
+Hartigan, J.A., & Wong, M.A. (1979) Algorithm AS 136: A k-means clustering algorithm. Applied Statistics 28:100-108. <https://doi.org/10.2307/2346830>
 
-Jarvis, J.C. & Moore, K.A. (2010) The role of the photosynthetic pathway in the acclimation of Zostera marina to light and temperature stress. Journal of Experimental Marine Biology and Ecology 395:105–110.
+Hobday, A.J., Alexander, L.V., Perkins, S.E., Smale, D.A., Straub, S.C., Oliver, E.C.J., Benthuysen, J.A., Burrows, M.T., Donat, M.G., Feng, M., Holbrook, N.J., Moore, P.J., Scannell, H.A., Gupta, A.S., & Wernberg, T. (2016) A hierarchical approach to defining marine heatwaves. Progress in Oceanography 141: 227– 238. <https://doi.org/10.1016/j.pocean.2015.12.014>
+
+Hemminga, M.A., & Duarte, C.M. (2000) Seagrass ecology. Cambridge University Press. <https://doi.org/10.4319/lo.2002.47.2.0611>
+
+IPCC (2023) Climate Change 2023: Synthesis Report. Contribution of Working Groups I, II and III to the Sixth Assessment Report of the Intergovernmental Panel on Climate Change [Core Writing Team, H. Lee and J. Romero (eds.)]. IPCC, Geneva, Switzerland, 184 pp. <https://doi.org/10.59327/IPCC/AR6-9789291691647>.
+
+Jarvis, J.C., & Moore, K.A. (2010) The role of the photosynthetic pathway in the acclimation of Zostera marina to light and temperature stress. Journal of Experimental Marine Biology and Ecology 395:105–110.
+
+Jentsch, A., & Beierkuhnlein, C. (2008) Research frontiers in climate change: Effects of extreme meteorological events on ecosystems. Comptes Rendus Geoscience 340:621-628. <https://doi.org/10.1016/j.crte.2008.07.002>
 
 Kopp, B.S., & Neckles, H.A. (2009) A protocol for monitoring estuarine nutrient enrichment in coastal parks of the National Park Service Northeast Region. Natural Resource Report NPS/NCBN/NRR—2009/110. National Park Service, Fort Collins, Colorado. <https://irma.nps.gov/DataStore/Reference/Profile/661689>
 
-Lefcheck, J. S., Wilcox, D. J., Murphy, R. R., Marion, S. R., & Orth, R. J. (2017). Multiple stressors threaten the imperiled coastal foundation species eelgrass (Zostera marina) in Chesapeake Bay, USA. Global Change Biology, 23(9), 3474-3483.
+Lee, K. Park, S.R., & Kim, Y.K. (2007) Effects of irradiance, temperature, and nutrients on growth dynamics of seagrasses: A review. Journal of Experimental Marine Biology and Ecology 350:144-175. <https://doi.org/10.1016/j.jembe.2007.06.016>
 
-Marín-Guirao, L., Ruiz, J. M., Dattolo, E., Garcia-Munoz, R., & Procaccini, G. (2016). Physiological and molecular evidence of differential short-term heat tolerance in Mediterranean seagrasses. Scientific reports, 6(1), 28615.
+Lefcheck, J.S., Wilcox, D.J., Murphy, R.R., Marion, S.R., & Orth, R.J. (2017) Multiple stressors threaten the imperiled coastal foundation species eelgrass (*Zostera marina*) in Chesapeake Bay, USA. Global Change Biology 23:3474-3483. <https://doi.org/10.1111/gcb.13623>
 
-Marsh Jr, J. A., Dennison, W. C., & Alberte, R. S. (1986). Effects of temperature on photosynthesis and respiration in eelgrass (Zostera marina L.). Journal of Experimental Marine Biology and Ecology, 101(3), 257-267.
+Marín-Guirao, L., Ruiz, J.M., Dattolo, E., Garcia-Munoz, R., & Procaccini, G. (2016) Physiological and molecular evidence of differential short-term heat tolerance in Mediterranean seagrasses. Scientific Reports 6:28615. <https://doi.org/10.1038/srep28615>
 
-Nagel, J. L., H. K. Plaisted, C. P. Peck, and P. Duffy. 2025a. Condition and trends of estuarine water quality and seagrass in Assateague Island National Seashore: Northeast Coastal and Barrier Network, 2005–2022. Science Report NPS/SR—2025/273. National Park Service, Fort Collins, Colorado. <https://doi.org/10.36967/2310561>
+Marsh Jr, J.A., Dennison, W.C., & Alberte, R.S. (1986) Effects of temperature on photosynthesis and respiration in eelgrass (*Zostera marina L.*). Journal of Experimental Marine Biology and Ecology 101:257-267. [https://doi.org/10.1016/0022-0981(86)90267-4](https://doi.org/10.1016/0022-0981(86)90267-4)
 
-Nagel, J. L., H. K. Plaisted, C. P. Peck, and P. Duffy. 2025b. Condition and trends of estuarine water quality and seagrass in Cape Cod National Seashore: Northeast Coastal and Barrier Network, 2003–2022. Science Report NPS/SR—2025/267. National Park Service, Fort Collins, Colorado. \< <https://doi.org/10.36967/2310108>
+Meehl, G.A., & Tebaldi C. (2004) More intense, more frequent, and longer lasting heat waves in the 21^st^ century. Science 305:994-997. <https://doi.org/10.1126/science.1098704>
 
-Nagel, J. L., H. K. Plaisted, C. P. Peck, and P. Duffy. 2025c. Condition and trends of estuarine water quality and seagrass in Fire Island National Seashore: Northeast Coastal and Barrier Network, 2003–2022. Science Report NPS/SR—2025/294. National Park Service, Fort Collins, Colorado. <https://doi.org/10.36967/2311455>
+Moore, K.A., & Jarvis, J.C. (2008) Environmental factors affecting recent summertime eelgrass diebacks in the Lower Chesapeake Bay: Implications for long-term persistence. Journal of Coastal Research 2008:135-147. <https://doi.org/10.2112/SI55-014>
 
-Novak, A. B., Pelletier, M. C., Colarusso, P., Simpson, J., Gutierrez, M. N., Arias-Ortiz, A., ... & Vella, P. (2020). Factors influencing carbon stocks and accumulation rates in eelgrass meadows across New England, USA. Estuaries and Coasts, 43(8), 2076-2091.
+Nagel, J.L., Plaisted, H.K., Peck, C.P., & Duffy, P. (2025a) Condition and trends of estuarine water quality and seagrass in Assateague Island National Seashore: Northeast Coastal and Barrier Network, 2005–2022. Science Report NPS/SR—2025/273. National Park Service, Fort Collins, Colorado. <https://doi.org/10.36967/2310561>
 
-Novak, A.B., Plaisted, H.K., Hughes, Z.J., Mittermayr, A., & Molden, E. (2023) Eelgrass (<i>Zostera marina L.</i>) populations are threatened by high sea-surface temperatures and impaired waters on Nantucket Island, USA. Marine Pollution Bulletin 197:115689. <https://doi.org/10.1016/j.marpolbul.2023.115689>
+Nagel, J.L., Plaisted, H.K., Peck, C.P., & Duffy, P. (2025b) Condition and trends of estuarine water quality and seagrass in Cape Cod National Seashore: Northeast Coastal and Barrier Network, 2003–2022. Science Report NPS/SR—2025/267. National Park Service, Fort Collins, Colorado. <https://doi.org/10.36967/2310108>
 
-Moore, K. A., Shields, E. C., Parrish, D. B., & Orth, R. J. (2012). Eelgrass survival in two contrasting systems: role of turbidity and summer water temperatures. Marine Ecology Progress Series, 448, 247-258.
+Nagel, J.L., Plaisted, H.K., Peck, C.P., & Duffy, P. (2025c) Condition and trends of estuarine water quality and seagrass in Fire Island National Seashore: Northeast Coastal and Barrier Network, 2003–2022. Science Report NPS/SR—2025/294. National Park Service, Fort Collins, Colorado. <https://doi.org/10.36967/2311455>
 
-Orth, R.J., Carruthers, T.J., Dennison, W.C., Duarte, C.M., Fourqurean, J.W., Heck, K.L., Hughes, A.R., Kendrick, G.A., Kenworthy, W.J., Olyarnik, S., Short, F.T., Waycott, M. & Williams, S. L. (2006). A global crisis for seagrass ecosystems. BioScience 56:987-996. [https://doi.org/10.1641/0006-3568(2006)56[987:AGCFSE]2.0.CO;2](https://doi.org/10.1641/0006-3568(2006)56%5B987:AGCFSE%5D2.0.CO;2){.uri}
+Novak, A.B., Pelletier, M.C., Colarusso, P., Simpson, J., Gutierrez, M.N., Arias-Ortiz, A., & Vella, P. (2020) Factors influencing carbon stocks and accumulation rates in eelgrass meadows across New England, USA. Estuaries and Coasts, 43:2076-2091. <https://doi.org/10.1007/s12237-020-00754-9>
 
-Orth, R. J., Lefcheck, J. S., McGlathery, K. S., Aoki, L., Luckenbach, M. W., Moore, K. A., ... & Lusk, B. (2020). Restoration of seagrass habitat leads to rapid recovery of coastal ecosystem services. Science advances, 6(41), eabc6434.
+Novak, A.B., Plaisted, H.K., Hughes, Z.J., Mittermayr, A., & Molden, E. (2023) Eelgrass (*Zostera marina L.*) populations are threatened by high sea-surface temperatures and impaired waters on Nantucket Island, USA. Marine Pollution Bulletin 197:115689. <https://doi.org/10.1016/j.marpolbul.2023.115689>
+
+Moore, K.A., Shields, E.C., Parrish, D.B., & Orth, R.J. (2012) Eelgrass survival in two contrasting systems: role of turbidity and summer water temperatures. Marine Ecology Progress Series, 448:247-258. <https://doi.org/10.3354/meps09578>
+
+Orth, R.J., Carruthers, T.J., Dennison, W.C., Duarte, C.M., Fourqurean, J.W., Heck, K.L., Hughes, A.R., Kendrick, G.A., Kenworthy, W.J., Olyarnik, S., Short, F.T., Waycott, M. & Williams, S. L. (2006) A global crisis for seagrass ecosystems. BioScience 56:987-996. [https://doi.org/10.1641/0006-3568(2006)56[987:AGCFSE]2.0.CO;2](https://doi.org/10.1641/0006-3568(2006)56%5B987:AGCFSE%5D2.0.CO;2){.uri}
+
+Orth, R.J., Lefcheck, J.S., McGlathery, K.S., Aoki, L., Luckenbach, M.W., Moore, K.A., & Lusk, B. (2020) Restoration of seagrass habitat leads to rapid recovery of coastal ecosystem services. Science Advances 6:eabc6434. <https://doi.org/10.1126/sciadv.abc6434>
+
+Osland, M.J., Day, R.H., Hall, C.T., Brumfield, M.D., Dugas, J.L., & Jones, W.R. (2017) Mangrove expansion and contraction at a poleward range limit: Climate extremes and land-ocean temperature gradients. Ecology 98:125-137. <https://doi.org/10.1002/ecy.1625>
+
+Parmesan, C., Root, T.L., & Willig, M.R. (2000) Impacts of extreme weather and climate on terrestrial biota. Bulletin of the American Meteorological Society 81:443-450. [https://doi.org/10.1175/1520-0477(2000)081\<0443:IOEWAC2.3.CO;2](https://doi.org/10.1175/1520-0477(2000)081%3C0443:IOEWAC%3E2.3.CO;2)
 
 Plaisted, H.K., Shields, E.C., Novak, A.B., Peck, C.P., Schenck, F., Carr, J., Duffy, P.A., Evans, N.T., Fox, S.E., Heck, S.M., Hudson, R., Mattera, T., Moore, K.A., Neikirk, B., Parrish, D.B., Peterson, B.J., Short, F.T. & Tinoco, A.I. (2022) Influence of rising water temperature on the temperate seagrass species eelgrass (<i>Zostera marina L.</i>) in the Northeast USA. Frontiers in Marine Science 9:920699. <https://doi.org/10.3389/fmars.2022.920699>
 
-Shields, E. C., Parrish, D., & Moore, K. (2019). Short-term temperature stress results in seagrass community shift in a temperate estuary. Estuaries and Coasts, 42(3), 755-764.
+Shields, E.C., Parrish, D., & Moore, K. (2019). Short-term temperature stress results in seagrass community shift in a temperate estuary. Estuaries and Coasts 42:755-764. <https://doi.org/10.1007/s12237-019-00517-1>
 
 Skirving, W., Marsh, B., De La Cour, J., Liu, G., Harris, A., Maturi, E., Geiger, E. & Eakin, C.M. (2020) CoralTemp and the coral reef watch coral bleaching heat stress product suite version 3.1. Remote Sensing 12:3856. <https://doi.org/10.3390/rs12233856>
 
-Smale, D. A., Wernberg, T., Oliver, E. C., Thomsen, M., Harvey, B. P., Straub, S. C., ... & Moore, P. J. (2019). Marine heatwaves threaten global biodiversity and the provision of ecosystem services. Nature Climate Change, 9(4), 306-312.
+Smale, D.A., Wernberg, T., Oliver, E.C., Thomsen, M., Harvey, B.P., Straub, S.C., Burrows, M.T., Alexander, L.V., Benthuysen, J.A., Donat, M.G., Feng, M., Hobday, A.J., Holbrook, N.J., Perkins-Kirkpatrick, S.E., Scannell H.A., Sen Gupta, A., Payne, B.L., & Moore, P.J. (2019) Marine heatwaves threaten global biodiversity and the provision of ecosystem services. Nature Climate Change 9:306-312. <https://doi.org/10.1038/s41558-019-0412-1>
 
-Sogin, E. M., Michellod, D., Gruber-Vodicka, H. R., Bourceau, P., Geier, B., Meier, D. V., ... & Liebeke, M. (2022). Sugars dominate the seagrass rhizosphere. Nature Ecology & Evolution, 6(7), 866-877.
+Sogin, E.M., Michellod, D., Gruber-Vodicka, H.R., Bourceau, P., Geier, B., Meier, D.V., Seidel, M., Ahmerkamp, S., Schorn, S., D'Angelo, G., Procaccini, G., Dubilier, N., & Liebeke, M. (2022) Sugars dominate the seagrass rhizosphere. Nature Ecology & Evolution 6:866-877. <https://doi.org/10.1038/s41559-022-01740-z>
+
+Zimmermann, N.E., Yoccoz, N.G., Edwards Jr., T.C., Meier, E.S., Thuiller, W., Guisan, A., Schmatz, D.R., & Pearman, P.B. (2009) Climatic extremes improve predictions of spatial patterns of tree species. Proceedings of the National Academy of Sciences 106:19723-19728. <https://doi.org/10.1073/pnas.0901643106>
 
 ## Contact Information
 
