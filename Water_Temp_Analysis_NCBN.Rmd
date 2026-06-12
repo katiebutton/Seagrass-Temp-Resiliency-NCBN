@@ -326,10 +326,10 @@ plot_stress_vs_cooling <- function(df) {
   y_limits <- plot_build$layout$panel_params[[1]]$y$continuous_range
   
   plot +
-    annotate("text", x = x_limits[1] + ((HDH_split - x_limits[1])/2), y = CDH_split + ((y_limits[2] - CDH_split)/2), vjust = 0.5, hjust = 0.5, label = "Stable Systems", size = 4.5, fontface = "bold") +
+    annotate("text", x = x_limits[1] + ((HDH_split - x_limits[1])/2), y = CDH_split + ((y_limits[2] - CDH_split)/2), vjust = 0.5, hjust = 0.5, label = "Moderately Buffered", size = 4.5, fontface = "bold") +
     annotate("text", x = x_limits[1] + ((HDH_split - x_limits[1])/2), y = y_limits[1] + ((CDH_split - y_limits[1])/2), vjust = 0.5, hjust = 0.5, label = "Thermal Refugia", size = 4.5, fontface = "bold") +
-    annotate("text", x = HDH_split + ((x_limits[2] - HDH_split)/2), y = CDH_split + ((y_limits[2] - CDH_split)/2), vjust = 0.5, hjust = 0.5, label = "Chronic Heat Stress", size = 4.5, fontface = "bold") +
-    annotate("text", x = HDH_split + ((x_limits[2] - HDH_split)/2), y = y_limits[1] + ((CDH_split - y_limits[1])/2), vjust = 0.5, hjust = 0.5, label = "Stress Buffered Systems", size = 4.5, fontface = "bold")
+    annotate("text", x = HDH_split + ((x_limits[2] - HDH_split)/2), y = CDH_split + ((y_limits[2] - CDH_split)/2), vjust = 0.5, hjust = 0.5, label = "Thermally Vulnerable", size = 4.5, fontface = "bold") +
+    annotate("text", x = HDH_split + ((x_limits[2] - HDH_split)/2), y = y_limits[1] + ((CDH_split - y_limits[1])/2), vjust = 0.5, hjust = 0.5, label = "Thermally Resilient", size = 4.5, fontface = "bold")
   
 }
 
@@ -400,7 +400,7 @@ plot_heat_event_structure_site <- function(df) {
     scale_park_color() +
     scale_park_shape() +
     labs(
-      title    = "Heat Event Structure Across Coastal Parks",
+      title    = "Thermal Regimes Across Coastal Parks",
       subtitle = "Points represent site-level averages across monitoring years",
       x = "Mean Number of Warming Events (Frequency)",
       y = "Mean % Time Above Threshold (Duration)",
@@ -413,9 +413,9 @@ plot_heat_event_structure_site <- function(df) {
   
   plot +
     annotate("text", x = x_limits[1] + ((event_split - x_limits[1])/2), y = exposure_split + ((y_limits[2] - exposure_split)/2), vjust = 0.5, hjust = 0.5, label = "Episodic Heat Waves", size = 4) +
-    annotate("text", x = x_limits[1] + ((event_split - x_limits[1])/2), y = y_limits[1] + ((exposure_split - y_limits[1])/2), vjust = 0.5, hjust = 0.5, label = "Low Exposure", size = 4) +
-    annotate("text", x = event_split + ((x_limits[2] - event_split)/2), y = exposure_split + ((y_limits[2] - exposure_split)/2), vjust = 0.5, hjust = 0.5, label = "Highly Stressed", size = 4) +
-    annotate("text", x = event_split + ((x_limits[2] - event_split)/2), y = y_limits[1] + ((exposure_split - y_limits[1])/2), vjust = 0.5, hjust = 0.5, label = "Chronic Warming", size = 4)
+    annotate("text", x = x_limits[1] + ((event_split - x_limits[1])/2), y = y_limits[1] + ((exposure_split - y_limits[1])/2), vjust = 0.5, hjust = 0.5, label = "Low Thermal Stress", size = 4) +
+    annotate("text", x = event_split + ((x_limits[2] - event_split)/2), y = exposure_split + ((y_limits[2] - exposure_split)/2), vjust = 0.5, hjust = 0.5, label = "Sustained Heat Stress", size = 4) +
+    annotate("text", x = event_split + ((x_limits[2] - event_split)/2), y = y_limits[1] + ((exposure_split - y_limits[1])/2), vjust = 0.5, hjust = 0.5, label = "Frequent Pulsed Warming", size = 4)
 }
 
 # (Optional) H) Thermal balance at TRANSECT level (no interpretation grids)
@@ -481,13 +481,7 @@ While temperature is a key driver of eelgrass stress and recovery, it operates a
 
 ## Temperature Data Collection
 
-The Northeast Coastal and Barrier Network uses the Tier-3 standardized Estuarine Nutrient Enrichment monitoring protocol ([Kopp and Neckles, 2009](#refs)) that includes seagrass condition monitoring (SOP 9). Seagrass condition is assessed using measures of population and shoot structure to track changes in meadow condition over time. The protocol was adapted from the international SeagrassNet program, which provides standardized methods for monitoring seagrass ecosystems.
-
-Within the network, three coastal parks, Assateague Island National Seashore (ASIS), Cape Cod National Seashore, and Fire Island National Seashore (FIIS) implement the Tier-3 seagrass monitoring protocol. At `r params$park`, long-term seagrass condition is monitored at `r as.character(english::english(n_distinct(dat_pk$Site_Name[dat_pk$long_term_site == TRUE])))` site`r if (n_distinct(dat_pk$Site_Name) > 1) {'s'}`: `r knitr::combine_words(unique(dat_pk$Site_Name[dat_pk$long_term_site == TRUE]))`. `r if_else(params$park == "CACO", paste("Additionally, water temperature data was also collected at", knitr::combine_words(unique(dat_pk$Site_Name[dat_pk$long_term_site == FALSE])), "beginning in 2023 to provide broader ecological context, but these sites are not included in the long-term monitoring protocol."), "")`
-
-At each long-term monitoring site, seagrass condition is monitored across three permanent 50-m transects that run parallel to shore at a shallow, mid-depth, and deep depth. `r if_else(params$park == "CACO", paste("Note that at East Harbor and Provincetown Harbor, temperature data was only collected at a single depth: XX meters.", ""), "")`Temperature loggers (HOBO UTBI-001 Tidbit Temp, Onset Computer Corporation) are attached to each transect and record water temperature at continuous 15-minute intervals throughout the year.
-
-Following data collection, water temperature data from each year are uploaded to the NPS AQUARIUS WebPortal for QAQC, certification, and storage. Additional details about data collection at each site are shown in Table 1 below.
+Within the network, three coastal parks, Assateague Island National Seashore (ASIS), Cape Cod National Seashore, and Fire Island National Seashore (FIIS) implement a standardized seagrass condition monitoring protocol ([Kopp and Neckles, 2009](#refs)) designed to track changes in seagrass beds across depth-stratified transects. As a component of this protocol, temperature loggers (HOBO UTBI-001 Tidbit Temp, Onset Computer Corporation) are deployed at each long-term seagrass monitoring site and record water temperature at continuous 15-minute intervals throughout the year. At `r params$park`, water temperature is monitored at `r as.character(english::english(n_distinct(dat_pk$Site_Name[dat_pk$long_term_site == TRUE])))` site`r if (n_distinct(dat_pk$Site_Name) > 1) {'s'}`, `r knitr::combine_words(unique(dat_pk$Site_Name[dat_pk$long_term_site == TRUE]))`, across three permanent 50-m transects orientated parallel to the shore at shallow, mid-depth, and deep positions. `r if_else(params$park == "CACO", paste("Additionally, water temperature data was also collected at", knitr::combine_words(unique(dat_pk$Site_Name[dat_pk$long_term_site == FALSE])), "beginning in 2023 to provide broader ecological context, but these sites are not included in the long-term monitoring protocol."), "")``r if_else(params$park == "CACO", paste("Note that at East Harbor and Provincetown Harbor, temperature data was only collected at a single depth: XX meters.", ""), "")`Following data collection, water temperature data from each year are uploaded to the NPS AQUARIUS WebPortal for quality assurance, certification, and storage. Additional details about data collection at each site are shown in Table 1 below.
 
 ```{r Table1, echo=FALSE}
 
@@ -528,24 +522,116 @@ kable(
   row_spec(nrow(site_sum), extra_css = "border-bottom: 1px solid lightgrey")
 ```
 
+
+
+```{r Table1.1, echo=FALSE, results='asis'}
+library(readxl)
+library(dplyr)
+library(knitr)
+library(kableExtra)
+library(here)
+library(tidyr)
+library(stringr)
+
+# ---- Load & standardize names (Option 1) ----
+dat_excel <- suppressMessages(
+  read_excel(
+    here("data", "Site_Summary_Master.xlsx"),
+    sheet = "Site_Year"
+  )
+) %>%
+  rename_with(~ gsub(" ", "_", .)) %>%
+  select(-starts_with("...")) %>%
+  mutate(Coverage_pct = Coverage_pct * 100)
+
+
+
+# ---- Filter to selected park ----
+dat_park <- dat_excel %>%
+  filter(Park_Code == params$park)
+
+# ---- Compute retention tests ----
+# Count months (May–Sept) with >= 10 data days and create friendly flags
+retained_tbl <- dat_park %>%
+  mutate(
+    months_ge10 = rowSums(across(May:September, ~ .x >= 10, .names = "{.col}_ge10")),
+    coverage_pass = Coverage_pct >= 80,
+    month_pass    = months_ge10 >= 3,
+    retained      = if_else(coverage_pass & month_pass, "Yes", "No"),
+    failed_rule   = case_when(
+      !coverage_pass &  month_pass ~ "Coverage < 80",
+      coverage_pass & !month_pass ~ "<10 days in ≥3 months",
+      !coverage_pass & !month_pass ~ "Both",
+      TRUE ~ ""
+    )
+  ) %>%
+  # Keep table lean but traceable
+  select(
+    Site_Name, Year, Transect,
+    Coverage_pct,
+    months_ge10,
+    Season_Check, All_check,
+    retained, failed_rule
+  ) %>%
+  arrange(Site_Name, Year, Transect) %>%
+  mutate(
+    Coverage_pct = round(Coverage_pct, 1)
+  )
+
+# ---- Present as scrollable Table 1 with clear labeling ----
+kable(
+  retained_tbl,
+  caption = paste0(
+    "Table 1. Retention of years for analyses (", params$park,
+    "). Years retained meet both rules: ≥80% coverage and ≥10 data-days in ≥3 months (May–September)."
+  ),
+  booktabs = TRUE,
+  col.names = c(
+    "Site", "Year", "Transect",
+    "Coverage (%)", "# Months ≥10 Days",
+    "Monthly Days Check", "Both Check",
+    "Retained?", "Reason Not Retained"
+  )
+) %>%
+  kable_styling(bootstrap_options = c("striped", "hover"), full_width = FALSE) %>%
+  # Color PASS/FAIL text for quick scanning
+  column_spec(
+    which(colnames(retained_tbl) == "Season_Check"),
+    color = ifelse(retained_tbl$Season_Check == "FAIL", "red", "darkgreen")
+  ) %>%
+  column_spec(
+    which(colnames(retained_tbl) == "All_check"),
+    color = ifelse(retained_tbl$All_check == "FAIL", "red", "darkgreen")
+  ) %>%
+  # Emphasize Retained? column (green for Yes, red for No)
+  column_spec(
+    which(colnames(retained_tbl) == "retained"),
+    color = ifelse(retained_tbl$retained == "Yes", "darkgreen", "red"),
+    bold = TRUE
+  ) %>%
+  # Keep the full table but make it scrollable
+  scroll_box(width = "100%", height = "420px")
+
+```
+
 ## Data Summerization & Analysis
 
-For this analysis, we focused on the continuous water temperature data and examined patterns of thermal stress and cooling dynamics with the goals of understanding the thermal conditions at `r params$park` and comparing with those at other long-term monitoring sites at `r knitr::combine_words(unique(dat %>% filter(Park_Code != params$park) %>% pull(Park_Code)))`.
+For this analysis, we focused on the continuous water temperature data and examined patterns of thermal stress and cooling dynamics with the goals of understanding the thermal conditions at `r paste(params$park, knitr::combine_words(unique(dat_pk$Site_Name[dat_pk$long_term_site == TRUE])))` seagrass monitoring site and comparing with those at other long-term seagrass monitoring sites at `r knitr::combine_words(unique(dat %>% filter(Park_Code != params$park) %>% pull(Park_Code)))`.
 
-Prior to analyses, temperature data were first filtered to the months from May-September to hone in on when thermal stress likely occurs. To ensure that the data from each sampling year occurred consistently over the same time periods, we then further filtered the data from each site to only include years with 80% data coverage and with at least 10 days of data in a minimum of three of the five focal months. Then, data from the individual transects at each site were summarized up to a single thermal metric value (HDH or CDH) for each year as described in the next section.
+Prior to analyses, temperature data were filtered to include the months of May-September to focus on the period when thermal stress is most likely to occur. To ensure that thermal metrics were comparable across years, sampling years with insufficient data coverage were excluded from analysis. Specifically, only years with 80% data coverage and a minimum of 10 days of data in at least three of the five focal months were retained (Table 1). Sampling years not meeting these criteria were excluded to avoid skewed thermal metrics that could result from gaps in the temperature record.
 
 ### Novel Thermal Metrics for Eelgrass
 
-For eelgrass, prolonged exposure to high temperatures can lead to physiological stress where respiration outpaces photosynthesis. To describe long-term thermal conditions in eelgrass meadows, we calculated two site-level yearly metrics from the continuous water temperature data: **heating degree hours (HDH)** and **cooling degree hours (CDH)** ([Berger et al. 2024](#refs)). HDH is calculated by first summing the total number of hours above a park-specific temperature threshold across the focal months (May to September) to get the total HDH per year. The total HDH values are then divided by the sum of all hours in the period of record for each year to get the mean HDH per year. Similarly, mean CDH for each year is calculated using the same method but for the number of hours below the park-specific temperature threshold.
+For eelgrass, prolonged exposure to high temperatures can lead to physiological stress where respiration outpaces photosynthesis. To describe long-term thermal conditions in eelgrass meadows, we calculated two site-level yearly metrics from the continuous water temperature data: **heating degree hours (HDH)** and **cooling degree hours (CDH)** ([Berger et al. 2024](#refs)). HDH is calculated by first summing the total number of hours above a park-specific temperature threshold across the focal months (May to September) to yield the total HDH per year. The total HDH values are then divided by the sum of all hours in the period of record for each year to derive the mean HDH per year. Similarly, mean CDH for each year is calculated using the same method but for the number of hours below the park-specific temperature threshold.
 
-Park-specific temperature thresholds were calculated from the filtered water temperature data described in the previous section. We first calculated the mean monthly temperature for each month between May to September across all years for each transect at each site (i.e., transect-level mean monthly temperatures). Then, we calculated the maximum of the transect-level mean monthly temperatures for each site. Note that we choose to use maximum temperatures because the distribution of seagrasses (and many other vegetation communities - such as mangroves) have been shown to be controlled in part by the frequency and intensity of climate extremes (citations), which are also likely to be altered by climate change (citations). Finally, we averaged the maximum mean monthly temperature from the site with the lowest value and the site with the highest value within each park to get park-specific temperature threshold values. We calculated park-specific temperature thresholds of 24.6 °C for CACO, 26.3°C for FIIS, and 28.4°C for ASIS. Notably, these park-specific temperature thresholds are extremely similar to known values of eelgrass thermal tolerance reported in peer-reviewed literature (e.g., [Berger & Berg 2024](https://doi.org/10.3354/meps14587), [Moore & Jarvis 2008](https://doi.org/10.2112/SI55-014), [Carr et al. 2012](https://doi.org/10.3354/meps09556), [Shields et al. 2018](https://doi.org/10.3390/d10040125)).
+Park-specific temperature thresholds were calculated from the filtered water temperature data described in the previous section. We first calculated the mean monthly temperature for each month between May to September across all years for each transect at each site (i.e., transect-level mean monthly temperatures). Then, we calculated the maximum of the transect-level mean monthly temperatures for each site. Note that we choose to use maximum temperatures because the distribution of seagrasses (and many other vegetation communities - such as mangroves) have been shown to be controlled in part by the frequency and intensity of climate extremes (citations), which are also likely to be altered by climate change (citations). Finally, we averaged the maximum mean monthly temperature from the site with the lowest value and the site with the highest value within each park to get park-specific temperature threshold values. We calculated park-specific temperature thresholds of 24.6 °C for CACO, 26.3°C for FIIS, and 28.4°C for ASIS. Notably, these park-specific temperature thresholds are extremely similar to known values of eelgrass thermal tolerance reported in peer-reviewed literature (e.g., [Berger & Berg 2024](https://doi.org/10.3354/meps14587), [Moore & Jarvis 2008](https://doi.org/10.2112/SI55-014), [Carr et al. 2012](https://doi.org/10.3354/meps09556), [Shields et al. 2018](https://doi.org/10.3390/d10040125),[Reusch et al. 2005](https://doi.org/10.1073/pnas.0500008102)).
 
-Thus, these metrics capture not just how hot or cold the water gets, but how long water temperatures remain above or below a biological threshold. When examined together, HDH and CDH help to understand the factors controlling eelgrass loss and recovery across coastal National Parks in the northeast (Figure 1).
+Thus, these metrics capture not just how hot or cold the water gets, but how long water temperatures remain above or below a biological threshold. When examined together, HDH and CDH provide a more complete characterization of the key temperature conditions that may be influencing eelgrass loss across National Parks in the northeast (Figure 1).
 
 ```{r concepts, echo=FALSE, warning=FALSE, fig.show='hold', fig.width=4, fig.height=3, fig.cap="Figure 1. Conceptualized diagrams demonstrating how yearly heating degree hours (HDH) and cooling degree hours (CDH) are calculated for each site."}
 ### HDH and CDH Concept##
 
-threshold <- if_else(params$park == "ASIS", 28.5, 25)
+threshold <- if_else(params$park == "ASIS", 28.4, 25)
 
 df <- tibble(
   time = 1:100,
@@ -585,7 +671,7 @@ ggplot(df, aes(x = time, y = temp)) +
 
 ### Site-Specific Extremes
 
-Within each site at `r params$park`, we identified extreme high heat years as those years where the mean HDH was above the site-specific 90^th^ percentile (`r paste0(threshold, "°C")`). These years represent years when the eelgrass meadow at these sites experienced the most intense and prolonged thermal stress. Similarly, we also identified extreme low cooling years as those years where the mean CDH was above the 90^th^ percentile for each site. In this context, lower CDH values (i.e., more negative) represent greater cooling below the temperature threshold at each site, indicating potential periods of relief for eelgrass meadows. Finally, we identified compound stress years as those years with both extreme high heat and extreme low cooling.
+We identified two types of extreme years based on site-specific 90th percentile thresholds. Extreme high heat years were defined as years in which mean HDH exceeded the 90^th^ percentile (`r paste0(threshold, "°C")`), representing years when the eelgrass meadow experienced the most intense and prolonged thermal stress. Extreme low cooling years were defined as years in which mean CDH exceeded the 90th percentile. Because CDH values are negative by design, years with the least negative values indicate the weakest cooling relief for eelgrass. In other words, extreme low cooling years are those in which eelgrass meadows had the fewest opportunities to recover from heat stress. Finally, compound stress years were defined as years meeting both criteria: extreme high heat and extreme low cooling occurring in the same year.
 
 ### Regional Comparisons
 
@@ -594,18 +680,95 @@ In order to understand regional patterns of seagrass thermal stress and cooling 
 The four thermal stress regimes were based on 1) the % time above the previously mentioned park-specific threshold averaged across all years (i.e., duration of warming), and 2) the number of warming events averaged across all years (i.e., frequency of warming). Thermal stress regimes were defined as:
 
 -   **Episodic Heatwave**: Sites with infrequent, but intense heat events
--   **Highly Stressed**: Sites with frequent and prolonged heat events
--   **Low Exposure**: Sites with infrequent and limited time above thermal threshold
--   **Chronic Warming**: Sites with frequent heat events that are not prolonged (pulsing)
+-   **Sustained Heat Stress**: Sites with frequent and prolonged heat events
+-   **Low Thermal Stress**: Sites with infrequent and limited time above thermal threshold
+-   **Frequent Pulsed Warming**: Sites with frequent heat events that are not prolonged (pulsing)
 
 The four cooling relief regimes were based on 1) the mean cooling degree hours averaged across all years at each site, and 2) the mean heating degree hours averaged across all years at each site. Cooling relief regimes were defined as:
 
--   **Stable Systems**: Low heat stress and moderate cooling
--   **Chronic Heat Stress**: High heat stress and limited cooling
--   **Thermal Refugia**: Low heat stress and strong cooling
--   **Stress Buffered Systems**: High heat stress but strong cooling
+-   **Moderately Buffered**: Low heat stress and moderate cooling
+-   **Thermally Vulnerable**: High heat stress and limited cooling
+-   **Thermal Refugia**: Low heat stress and high cooling
+-   **Thermally Resilient**: High heat stress but high cooling
 
 # Results
+
+## Basic Site Summary
+
+Before quantifying extreme thermal events, we summarized basic temperature conditions at each site using mean, minimum, and maximum daily temperatures from May–September (Table 2). These values provide context for interpreting subsequent heat stress metrics.
+
+```{r Table 2, echo=FALSE, results='asis'}
+
+library(readxl)
+library(dplyr)
+library(here)
+library(kableExtra)
+library(lubridate)
+
+# Ensure UTF-8 handling
+invisible(Sys.setlocale("LC_CTYPE", "en_US.UTF-8"))
+
+# ---- Load temperature master (B) ----
+temp <- read_excel(
+  here("data", "Site_Summary_Master_b.xlsx"),
+  sheet = "Site_Year"
+) %>%
+  rename_with(~ gsub(" ", "_", .))
+
+# Defensive: derive Year if missing
+if (!"Year" %in% names(temp) && "date_start" %in% names(temp)) {
+  temp <- temp %>% mutate(Year = year(as.Date(date_start)))
+}
+
+# ---- Filter to selected park ----
+temp_park <- temp %>% filter(Park_Code == params$park)
+
+# ---- Site-level summary across all years ----
+basic_temp_site <- temp_park %>%
+  group_by(Site_Name) %>%
+  summarise(
+    Mean_Temp     = mean(mean_temp, na.rm = TRUE),
+    Mean_Min_Temp = mean(min_temp,  na.rm = TRUE),
+    Mean_Max_Temp = mean(max_temp,  na.rm = TRUE),
+
+    N_years    = n_distinct(Year),
+    First_Year = min(Year, na.rm = TRUE),
+    Last_Year  = max(Year, na.rm = TRUE),
+
+    .groups = "drop"
+  ) %>%
+  arrange(Site_Name)
+
+# ---- Caption ----
+safe_caption <- paste0(
+  "Table 2. Basic temperature summary (May–September), averaged across all years for sites in ",
+  params$park, "."
+)
+
+# ---- Column names (UTF-8 °C, no HTML escaping) ----
+safe_colnames <- c(
+  "Site",
+  "Mean Temp (°C)",
+  "Mean Min Temp (°C)",
+  "Mean Max Temp (°C)",
+  "N years",
+  "First year",
+  "Last year"
+)
+
+# ---- Present table ----
+kable(
+  basic_temp_site,
+  caption   = safe_caption,
+  col.names = safe_colnames,
+  digits    = 1,
+  booktabs  = TRUE
+) %>%
+  kable_styling(full_width = FALSE) %>%
+  scroll_box(width = "100%", height = "320px")
+# ```
+```
+
 
 ## Extreme High Heat Years
 
@@ -661,7 +824,70 @@ site_result_text <- function(site_year_extreme_df, metric, park_code) {
 }
 ```
 
-`r site_result_text(site_year_extreme, "HDH", params$park)`
+```{r hdh & cdh min/max summary, include=FALSE}
+
+library(dplyr)
+library(glue)
+library(knitr)
+
+# 1) Filter park
+dat_pk <- dat %>% filter(Park_Code == params$park)
+
+# 2) Long-term sites
+long_term_sites <- dat_pk %>%
+  filter(long_term_site == TRUE) %>%
+  distinct(Site_Name)
+
+sites_text <- knitr::combine_words(long_term_sites$Site_Name)
+
+# Helper function to avoid duplication 
+make_summary <- function(df, value_col, label) {
+
+  df %>%
+    semi_join(long_term_sites, by = "Site_Name") %>%
+    group_by(Site_Name) %>%
+    summarise(
+      start_year = min(Year, na.rm = TRUE),
+      end_year   = max(Year, na.rm = TRUE),
+      min_val    = min(.data[[value_col]], na.rm = TRUE),
+      min_year   = Year[which.min(.data[[value_col]])],
+      max_val    = max(.data[[value_col]], na.rm = TRUE),
+      max_year   = Year[which.max(.data[[value_col]])],
+      .groups = "drop"
+    ) %>%
+    mutate(summary_text =
+             glue("at {Site_Name}, between {start_year} and {end_year} ",
+                  "the mean {label} ranged from {round(min_val, 1)} in {min_year} ",
+                  "to {round(max_val, 1)} in {max_year}")
+    ) %>%
+    pull(summary_text) %>%
+    trimws() %>%
+    knitr::combine_words()
+}
+
+# HDH
+site_year_hdh <- dat_pk %>%
+  group_by(Site_Name, Year) %>%
+  summarise(Mean_HDH = mean(Mean_HDH_daily, na.rm = TRUE), .groups = "drop")
+
+summary_text_hdh <- make_summary(site_year_hdh, "Mean_HDH", "HDH")
+
+# CDH
+site_year_cdh <- dat_pk %>%
+  group_by(Site_Name, Year) %>%
+  summarise(Mean_CDH = mean(Mean_CDH_daily, na.rm = TRUE), .groups = "drop")
+
+summary_text_cdh <- make_summary(site_year_cdh, "Mean_CDH", "CDH")
+
+
+```
+
+`r site_result_text(site_year_extreme, "HDH", params$park)` 
+
+Thermal conditions at `r paste(params$park, sites_text)` showed that `r summary_text_hdh`
+
+
+
 
 ```{r plot-hdh, fig.width=10, fig.height=8, fig.cap=paste0("Figure 2. Mean yearly HDH for each site at ", params$park, ". Extreme high heat years (red points) are years when mean HDH exceeded the site-specific 90th percentile value (red dashed line)."), echo=FALSE}
 plot_hdh_extreme_by_site(dat, park_code)
@@ -683,7 +909,9 @@ site_year_cdh_extreme <- flag_extreme_by_site(site_year_cdh, value_col = "Mean_C
   arrange(Site_Name, Year)
 ```
 
-`r site_result_text(site_year_cdh_extreme, "CDH", params$park)`
+`r site_result_text(site_year_cdh_extreme, "CDH", params$park)` 
+
+Cooling dynamics at `r paste(params$park, sites_text)` showed that `r summary_text_cdh`.
 
 ```{r plot-cdh, fig.width=10, fig.height=8, fig.cap=paste0("Figure 3. Mean yearly CDH for each site at ", params$park, ". Extreme low cooling years (blue points) are years when mean CDH exceeded the site-specific 90th percentile value (blue dashed line)."), echo=FALSE}
 plot_cdh_lowcool_by_site(dat, park_code)
@@ -720,29 +948,25 @@ double_stress <- dat %>%
 plot_double_stress_by_site(dat,park_code)
 ```
 
-## How does `r params$park` compare across the region?
+## Thermal Stress Regimes Across NCBN Coastal Parks
 
-```{r regional-results, echo=FALSE, fig.width=10, fig.height=6, fig.cap="Figure 5. Heat event structure across three coastal National Park Service units (CACO, ASIS, FIIS). Each point represents a site-level average of the mean number of warming events per year (frequency) and the mean percentage of time above the thermal threshold (duration). Dashed lines divide the figure into four interpretive thermal regimes. Labels show the average number of monitoring years contributing to each site-level estimate."}
+```{r regional-results, echo=FALSE, fig.width=10, fig.height=6, fig.cap="Figure 5. Thermal stress regimes across three coastal National Park Service units (CACO, ASIS, FIIS). Each point represents a site-level average of the mean number of warming events per year (frequency) and the mean percentage of time above the thermal threshold (duration). Dashed lines divide the figure into four interpretive thermal regimes. Labels show the average number of monitoring years contributing to each site-level estimate."}
 plot_heat_event_structure_site(dat)
 ```
 
-Across the three coastal NCBN parks, clear regional patterns emerge. At CACO, most sites fall in the category of having fewer and shorter heat‑stress events. An exception is the partially restored East Harbor system, which shows a different pattern. Overall, CACO sites tend to experience heat stress as brief or infrequent pulses rather than long, sustained events.
+Across the three coastal NCBN parks, clear regional patterns emerge. At CACO, most sites fall in the category of having fewer and shorter heat‑stress events. An exception is the tidally restricted East Harbor system, which shows a different pattern. Overall, CACO sites tend to experience heat stress as brief or infrequent pulses rather than long, sustained events.
 
-In contrast, Tingles Island at ASIS experiences heat stress much more often, and these events add up throughout the season. This pattern is expected for parks located in warmer parts of the region, where longer and more frequent heat events are common.
+In contrast, Tingles Island at ASIS experiences heat stress much more often, and these events add up throughout the season. This pattern is expected for parks located in warmer parts of the region, where longer and more frequent heat events are common. FIIS sites fall between these two extremes. Heat‑stress conditions vary widely across the park, depending on where each site is located. For example, Moriches Bay shows short, frequent warming events, while Great South Bay experiences longer or more sustained heat episodes. This mix reflects the diversity of habitats and local conditions across Fire Island.These results show that sites across the regional scale experience different heat stress conditions and even sites within the same park differ greatly in their thermal regimes.
 
-FIIS sites fall between these two extremes. Heat‑stress conditions vary widely across the park, depending on where each site is located. For example, Moriches Bay shows short, frequent warming events, while Great South Bay experiences longer or more sustained heat episodes. This mix reflects the diversity of habitats and local conditions across Fire Island.
+## Cooling Relief Regimes Across NCBN Coastal Parks
 
-These results show that sites across the regional scale experience different heat stress conditions and even sites within the same park respond in different ways. This raises an important questions that will require further data collection and analysis: **how are some of the most chronically stressed sites, like Moriches Bay, Pleasant Bay, and Tingles Island still able to support eelgrass populations?**
 
-## What are the impacts of cooling?
-
-Now that we've seen sites experience heat stress differently, we can look at cooling relief from heat events. Here, we divide the eelgrass into the four previously described cooling regimes based on the balance between thermal stress and thermal relief:
-
-```{r, echo=FALSE, fig.width=12, fig.height=6, fig.cap="Figure 6. Thermal stress and cooling recovery across three coastal National Park Service units (CACO, ASIS, FIIS). Each point represents a site‑level average of the mean heating degree hours per day (thermal stress) and the mean cooling degree hours per day (thermal recovery). Dashed lines divide the figure into four interpretive recovery regimes. Labels show the average number of monitoring years contributing to each site‑level estimate."}
+```{r, echo=FALSE, fig.width=12, fig.height=6, fig.cap="Figure 6. Thermal stress and cooling relief across three coastal National Park Service units (CACO, ASIS, FIIS). Each point represents a site‑level average of the mean heating degree hours per day (thermal stress) and the mean cooling degree hours per day (thermal relief). Dashed lines divide the figure into four cooling relief regimes. Labels show the average number of monitoring years contributing to each site‑level estimate."}
 plot_stress_vs_cooling(dat)
 ```
+Having characterized the variation in thermal stress across sites, we next evaluate the degree to which cooling events provide relief from these conditions. To support this assessment, eelgrass beds are classified into four previously defined cooling‑regime categories, which reflect the balance between accumulated thermal stress and subsequent cooling. This framework enables a comparative evaluation of site responses to heat exposure and informs the interpretation of broader temperature‑driven vulnerability patterns.
 
-The balance between heat stress events and cooling recovery also varies across the region and within parks. Pleasant Bay and Moriches Bay receive some of the strongest cooling periods among the chronically warm sites, second only to the fully open tidal systems on Cape Cod. This pattern reflects their position relative to inlets where tidal flushing brings in cooler ocean water that helps moderate warmer temperatures and sustain populations of eelgrass. In contrast, sites with more limited flushing, like Great South Bay and East Harbor, show weaker cooling relief consistent with restricted or partially restored flow. These sites match site conditions that no longer support eelgrass. Tingles Island falls between these two outcomes as it receives little cooling, sits between a stable and thermal refugia zone, and supports sparse eelgrass populations.
+The balance between heat stress events and cooling recovery varies greatly across the region and within parks. Pleasant Bay and Moriches Bay receive some of the strongest cooling periods among the chronically warm sites, second only to the fully open tidal systems on Cape Cod. This pattern reflects their position relative to inlets where tidal flushing brings in cooler ocean water that helps moderate warmer temperatures. In contrast, sites with more limited flushing, like Great South Bay and East Harbor, show weaker cooling relief consistent with restricted or partially restored flow. These sites match site conditions that no longer support eelgrass. Tingles Island falls between these two outcomes as it receives little cooling, sits between a stable and thermal refugia zone, and supports sparse eelgrass populations.
 
 # Key Takeaways
 
@@ -752,9 +976,9 @@ if (params$park == "ASIS") {
   cat("
 ### ASIS Key Takeaways
 
-Across NCBN parks, Tingles Island stands out as one of the most heat-stressed locations due to frequent and prolonged heat events that accumulate throughout the season. This thermal pattern is expected given its southern latitude relative to FIIS (NY) and CACO (MA).  The Tingles Island transect supports only sparse eelgrass populations, reflecting moderate cooling, but still challenging environment compared to denser sites like Pleasant Bay and Moriches Bay. 
+Across NCBN parks, Tingles Island stands out as one of the most heat-stressed locations in terms of eelgrass thermal tolerance due to frequent and prolonged heat events that accumulate throughout the season. This thermal pattern is expected given its southern latitude relative to FIIS (NY) and CACO (MA). Despite receiving limited cooling relief, TIngles Island still supports sparse eelgrass populations. This highlights the challening thermal environment at this site relative to denser eelgrass beds at sites like Pleasant Bay and Moriches Bay.
 
-While this analysis focuses on thermal conditions alone, other water quality factors like dissolved oxygen, turbidity, salinity, and pH also play a key role in shaping eelgrass health. At Tingles Island, long- term trend reports show significant declines in eelgrass conditions (canopy height, biomass, and percent cover, shoot density, and biomass ratios), trends driven by a combination of chronically poor water quality and heat stress (Nagel et al. 2025a). Together these observations point to ecological pressure on the system.
+While this analysis focuses on thermal conditions alone, other water quality factors such as light availability, dissolved oxygen, salinity, and physical disturbance also play a key role in shaping eelgrass condition. At Tingles Island, long-term trend analyses show significant declines in eelgrass condition across multiple metrics, which may be linked to a combination of poor water quality and heat stress (Nagel et al. 2025a). The next step in this work is to investigate the various drivers of eelgrass condition change by integrating the thermal metrics derived here with additional water quality and environmental data.
 
 ")
 }
@@ -765,9 +989,9 @@ if (params$park == "FIIS") {
   cat("
 ### FIIS Key Takeaways
 
-Across NCBN parks, Great South Bay is one of the most heat-stressed locations experiencing frequent and prolonged heat events that accumulate throughout the season. This SeagrassNet site currently supports no eelgrass, while nearby Moriches Bay maintains dense eelgrass beds and experiences shorter heat waves due to its greater cooling capacity. 
+Across NCBN parks, Great South Bay is one of the most heat-stressed locations in terms of eelgrass thermal tolerance experiencing frequent and prolonged heat events that accumulate throughout the season. This SeagrassNet site currently supports no eelgrass, while nearby Moriches Bay maintains dense eelgrass beds and experiences shorter heat waves due to its greater cooling capacity. 
 
-While this analysis focuses on thermal condition alone, other water quality factors like dissolved oxygen, turbidity, salinity, and pH also play a key role in shaping eelgrass health. At Great South Bay, long term trend reports show a stark decline in eelgrass condition across all three transects from 2007 to 2011 (Nagel et. al 2025c). This decline is likely driven by poor water clarity combined with prolonged summer temperatures exceeding 25 degrees Celsius. Together these conditions point to ecological pressure on the system. 
+While this analysis focuses on thermal condition alone, other water quality factors like dissolved oxygen, turbidity, salinity, and pH also play a key role in shaping eelgrass condition. At Great South Bay, long-term trend reports show a stark decline in eelgrass condition across all three transects from 2007 to 2011  which may be linked to a combination of poor water quality and heat stress (Nagel et. al 2025c).The next step in this work is to investigate the various drivers of eelgrass condition change by integrating the thermal metrics derived here with additional water quality and environmental data.
 
 ")
 }
@@ -779,12 +1003,12 @@ if (params$park == "CACO") {
 
 Across Cape Cod, eelgrass sites span a wide range of thermal regimes driven by local hydrodynamics. These range from open coast settings with relatively low heat stress (Duck Harbor and Provincetown Harbor), to coastal lagoons like Pleasant Bay, and highly restricted systems such as East Harbor. **East Harbor is the most heat stressed NCBN site**, experiencing infrequent but intense heat events that far exceed typical seasonal conditions. This site currently supports no eelgrass, while Pleasant Bay and Provincetown Harbor maintain eelgrass beds and benefit from stronger cooling that limits the duration of heat waves. 
 
-While this analysis focuses on thermal condition alone, other water quality factors like dissolved oxygen, turbidity, salinity, and pH also play a key role in shaping eelgrass health. At Duck Harbor, long term reports shows a marked decline in eelgrass condition across the shallow and deep transects from 2014 to 2022 (Nagel et al. 2025c). In Pleasant Bay, eelgrass persists only on the mid depth transect, with losses from the shallow and deep transects and an overall declining trend. These patterns are likely driven by a combination of wave energy (erosion or burial), reduced water clarity, and prolonged summer temperatures exceeding 25C.These patterns highlight the varying vulnerabilities and site dynamics across CACO sites.
+While this analysis focuses on thermal condition alone, other water quality factors like dissolved oxygen, turbidity, salinity, and pH also play a key role in shaping eelgrass health. At Duck Harbor, long term reports shows a marked decline in eelgrass condition from 2014 to 2022 (Nagel et al. 2025c). In Pleasant Bay, eelgrass persists only on the mid depth transect, with losses from the shallow and deep transects and an overall declining trend. These patterns are likely driven by a combination of wave energy (erosion or burial), reduced water clarity, and heat stress.These patterns highlight the varying vulnerabilities and site dynamics across CACO sites.The next step in this work is to investigate the various drivers of eelgrass condition change by integrating the thermal metrics derived here with additional water quality and environmental data.
 ")
 }
 ```
 
-In parallel with these environmental assessments, NPS scientists and partners are using genomics to better understand why some eelgrass populations can withstand warming while other decline. By sequencing plants from Maine to North Carolina, we can identify genetic differences linked to heat tolerance and local adaptation. These results will guide future restoration planning and identify donor populations for transplanting seeds to help vulnerable meadows keep pace with rising sea temperatures.
+In parallel with this work, NPS scientists and partners are using genomics to better understand why some eelgrass populations are able to withstand warming while others decline. By sequencing plants from Maine to North Carolina, genetic differences linked to heat tolerance and local adaptation can be identified. These findings will guide future restoration planning and help identify donor populations for seed transplanting to support vulnerable meadows as temperature continue to rise.
 
 > **🟦 Network‑Wide Key Takeaways**
 >
@@ -843,6 +1067,8 @@ Orth, R.J., Carruthers, T.J., Dennison, W.C., Duarte, C.M., Fourqurean, J.W., He
 Orth, R. J., Lefcheck, J. S., McGlathery, K. S., Aoki, L., Luckenbach, M. W., Moore, K. A., ... & Lusk, B. (2020). Restoration of seagrass habitat leads to rapid recovery of coastal ecosystem services. Science advances, 6(41), eabc6434.
 
 Plaisted, H.K., Shields, E.C., Novak, A.B., Peck, C.P., Schenck, F., Carr, J., Duffy, P.A., Evans, N.T., Fox, S.E., Heck, S.M., Hudson, R., Mattera, T., Moore, K.A., Neikirk, B., Parrish, D.B., Peterson, B.J., Short, F.T. & Tinoco, A.I. (2022) Influence of rising water temperature on the temperate seagrass species eelgrass (<i>Zostera marina L.</i>) in the Northeast USA. Frontiers in Marine Science 9:920699. <https://doi.org/10.3389/fmars.2022.920699>
+
+Reusch, T. B., Ehlers, A., Hämmerli, A., & Worm, B. (2005). Ecosystem recovery after climatic extremes enhanced by genotypic diversity. Proceedings of the National Academy of Sciences, 102(8), 2826-2831. <https://doi.org/10.1073/pnas.0500008102>
 
 Shields, E. C., Parrish, D., & Moore, K. (2019). Short-term temperature stress results in seagrass community shift in a temperate estuary. Estuaries and Coasts, 42(3), 755-764.
 
