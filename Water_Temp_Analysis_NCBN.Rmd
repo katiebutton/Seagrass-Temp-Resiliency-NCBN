@@ -199,18 +199,21 @@ plot_double_stress_by_site <- function(df, park_code) {
     dplyr::summarise(
       Mean_HDH = mean(Mean_HDH_daily, na.rm = TRUE),
       Mean_CDH = mean(Mean_CDH_daily, na.rm = TRUE),
-      .groups = "drop"
+      .groups   = "drop"
     ) %>%
     dplyr::group_by(Site_Name) %>%
     dplyr::mutate(
-      hdh_thresh = stats::quantile(Mean_HDH, 0.9, na.rm = TRUE),
-      cdh_thresh = stats::quantile(Mean_CDH, 0.9, na.rm = TRUE),
-      High_Heat   = Mean_HDH >= hdh_thresh,
-      Low_Cooling = Mean_CDH >= cdh_thresh,
+      hdh_thresh    = stats::quantile(Mean_HDH, 0.9, na.rm = TRUE),
+      cdh_thresh    = stats::quantile(Mean_CDH, 0.9, na.rm = TRUE),
+      High_Heat     = Mean_HDH >= hdh_thresh,
+      Low_Cooling   = Mean_CDH >= cdh_thresh,   # high CDH = low cooling
       Double_Stress = High_Heat & Low_Cooling
-    ) %>% dplyr::ungroup()
-  
-  ggplot(site_year, aes(x = Year, y = Mean_HDH)) +
+    ) %>%
+    dplyr::ungroup()
+
+  has_compound <- isTRUE(any(site_year$Double_Stress, na.rm = TRUE))
+
+  p <- ggplot(site_year, aes(x = Year, y = Mean_HDH)) +
     geom_line(color = "black", linewidth = 1) +
     geom_point(size = 2) +
     geom_point(data = subset(site_year, Double_Stress), color = accent_purple, size = 4) +
@@ -220,18 +223,24 @@ plot_double_stress_by_site <- function(df, park_code) {
       nudge_x = 0.4, nudge_y = 0.6, hjust = 0, direction = "y",
       box.padding = 0.3, point.padding = 0.2
     ) +
-    { if(any(df$Double_Stress)) # turn off plotting of the HDH threshold line if there are no compound stress years
-    geom_hline(aes(yintercept = hdh_thresh), linetype = "dashed", color = accent_red) } +
     facet_wrap(~ Site_Name, ncol = 1, scales = "free_y") +
-    scale_y_continuous(labels = label_number(accuracy = 1),
-                       expand = expansion(mult = c(0.1, 0.2))) +
-    scale_x_continuous(breaks = seq(min(site_year$Year, na.rm = TRUE), max(site_year$Year, na.rm = TRUE), by = 2)) +
+    scale_y_continuous(labels = scales::label_number(accuracy = 1),
+                       expand = ggplot2::expansion(mult = c(0.1, 0.2))) +
+    scale_x_continuous(breaks = seq(min(site_year$Year, na.rm = TRUE),
+                                    max(site_year$Year, na.rm = TRUE), by = 2)) +
     labs(
-      title    = glue("Compound stress years by site ({park_code})"),
+      title    = glue::glue("Compound stress years by site ({park_code})"),
       subtitle = "Purple points = years with extreme high heat AND low cooling",
       x = "Year", y = "Mean daily heating degree hours"
     )
+
+  if (has_compound) {
+    p <- p + geom_hline(aes(yintercept = hdh_thresh), linetype = "dashed", color = accent_red)
+  }
+
+  p
 }
+
 ```
 
 ```{r Regional-PLotting-Functions, include=FALSE}
