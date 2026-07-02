@@ -1,6 +1,55 @@
 library(tidyverse)
 library(fetchaquarius)
 library(NCBNAqua)
+library(here)
+library(lubridate)
+
+# -----------------------------------------------------------
+# ADD THE UPDATED CSV READER FUNCTION *RIGHT HERE*
+# -----------------------------------------------------------
+
+read_temp_csv <- function(path,
+                          site_name,
+                          transect = "Fixed",
+                          tz = "America/New_York") {
+  
+  df <- readr::read_csv(path, show_col_types = FALSE)
+  
+  if (!all(c("DateTimeStamp", "Temp") %in% names(df))) {
+    stop("CSV must contain: DateTimeStamp and Temp")
+  }
+  
+  # Your exact timestamp format: m/d/Y H:M (no seconds)
+  ts <- suppressWarnings(lubridate::parse_date_time(
+    df$DateTimeStamp,
+    orders = c("mdy HM"),       # <-- your format
+    tz = tz
+  ))
+  
+  # fallback patterns if needed
+  if (any(is.na(ts))) {
+    ts2 <- suppressWarnings(lubridate::parse_date_time(
+      df$DateTimeStamp,
+      orders = c("mdy HMS", "mdy IM", "Ymd HMS", "ymd HMS"),
+      tz = tz
+    ))
+    ts[is.na(ts)] <- ts2[is.na(ts)]
+  }
+  
+  if (all(is.na(ts))) stop("Could not parse DateTimeStamp in file: ", path)
+  
+  tibble::tibble(
+    Name       = site_name,
+    Identifier = NA_character_,
+    Unit       = "degC",
+    Timestamp  = ts,
+    Date       = as.character(as.Date(ts)),
+    Time       = format(ts, "%H:%M:%S"),
+    Value      = as.numeric(df$Temp),
+    Transect   = transect
+  ) %>% dplyr::filter(!is.na(Value))
+}
+
 
 # establish connection to Aquarius
 fetchaquarius::connectToAquarius("aqreadonly")
@@ -155,6 +204,20 @@ caha_ocbr <- map("National Park Service.Southeast Coast Network.Fixed Station WQ
   filter(str_detect(Identifier, "Instantaneous")) %>%
   mutate(Transect = "Fixed")
 
+## Read csv files##
+
+wells_me <- read_temp_csv(
+  path      = here("data", "wells_me.csv"),
+  site_name = "Wells",
+  transect  = "Fixed"
+)
+
+greatbay_nh <- read_temp_csv(
+  path      = here("data", "greatbay_nh.csv"),
+  site_name = "Great Bay",
+  transect  = "Fixed"
+)
+
 # -----------------------
 # Bind & derive
 # -----------------------
@@ -167,7 +230,9 @@ seagrass_temp <- bind_rows(
     "ASIS" = asis_seagrass,
     "CALO" = calo_shak,
     "CALO" = calo_midm,   # NEW CALO site
-    "CAHA" = caha_ocbr    # NEW park/site
+    "CAHA" = caha_ocbr,    # NEW park/site
+    "Maine" = wells_me,
+    "New Hampshire" = greatbay_nh
   ),
   .id = "park_code"
 ) %>%
