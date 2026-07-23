@@ -247,36 +247,49 @@ plot_sitelevel_thermal_stress_lines <- function(df) {
 # E) Thermal stress vs cooling (site-level scatter with size = % hot)
 plot_stress_vs_cooling <- function(df) {
   site_level <- make_site_level(df, metrics = c("Mean_HDH_daily","Mean_CDH_daily","%_abv_thres"))
-  median_HDH <- 8.8
-  median_CDH <- -94.9
   
-  x_low  <- median_HDH * 0.5
-  x_high <- max(site_level$mean_HDH, na.rm = TRUE) * 0.8
-  y_low  <- min(site_level$mean_CDH, na.rm = TRUE) * 0.8
-  y_high <- median_CDH * 0.8
+  cluster_df <- site_level %>% # create df with only Events and Exposure for fitting k-means
+    mutate(id = paste0(Park_Code, "_", Site_Name)) %>%
+    column_to_rownames(var = "id") %>%
+    ungroup() %>%
+    dplyr::select(mean_HDH, mean_CDH)
   
-  ggplot(site_level, aes(x = mean_HDH, y = mean_CDH, color = Park_Code, size = pct_hot)) +
+  set.seed(42)
+  km_fit <- kmeans(cluster_df, centers = 4, nstart = 2) # fit k-means clusters
+  HDH_split <- mean(km_fit$centers[1:4])
+  CDH_split <- mean(km_fit$centers[5:8])
+  
+  plot <- ggplot(site_level, aes(x = mean_HDH, y = mean_CDH, color = Park_Code, size = pct_hot)) +
     geom_point(alpha = 0.9) +
-    geom_text_repel(aes(label = Label), size = 4) +
-    geom_vline(xintercept = median_HDH, linetype = "dashed", color = grey_grid) +
-    geom_hline(yintercept = median_CDH, linetype = "dashed", color = grey_grid) +
-    annotate("text", x = x_low,  y = y_high, label = "Stable Systems",          size = 4.5, fontface = "bold") +
-    annotate("text", x = x_high, y = y_high, label = "Chronic Heat Stress",     size = 4.5, fontface = "bold") +
-    annotate("text", x = x_low,  y = y_low,  label = "Thermal Refugia",         size = 4.5, fontface = "bold") +
-    annotate("text", x = x_high, y = y_low,  label = "Dynamic/Flushed Systems", size = 4.5, fontface = "bold") +
-    expand_limits(x = max(site_level$mean_HDH, na.rm = TRUE) * 1.2,
-                  y = min(site_level$mean_CDH, na.rm = TRUE) * 1.2) +
+    geom_text_repel(aes(label = Label), size = 4, point.padding = 0.4, box.padding = 0.5, force = 2) +
+    geom_vline(xintercept = HDH_split, linetype = "dashed", color = grey_grid) +
+    geom_hline(yintercept = CDH_split, linetype = "dashed", color = grey_grid) +
+    # expand_limits(x = max(site_level$mean_HDH, na.rm = TRUE) * 1.2,
+    #               y = min(site_level$mean_CDH, na.rm = TRUE) * 1.2) +
     scale_park_color() +
     guides(color = guide_legend(override.aes = list(alpha = 1, size = 4))) +
     labs(
       title = "Thermal Stress vs Cooling Relief Across Coastal Monitoring Sites",
-      subtitle = "Site-level averages (transects averaged within year, then across years)",
+      subtitle = "Points represent site-level averages across monitoring years",
       x = "Mean Heating Degree Hours per Day (Thermal Stress)",
       y = "Mean Cooling Degree Hours per Day (Thermal Recovery)",
       color = "Park",
       size  = "% Time Above Threshold"
     )
+  
+  plot_build <- ggplot_build(plot)
+  x_limits <- plot_build$layout$panel_params[[1]]$x$continuous_range
+  y_limits <- plot_build$layout$panel_params[[1]]$y$continuous_range
+  label_down <- 0.10 * diff(y_limits)
+  
+  plot +
+    annotate("text", x = x_limits[1] + ((HDH_split - x_limits[1])/2), y = CDH_split + ((y_limits[2] - CDH_split)/2), vjust = 0.5, hjust = 0.5, label = "Moderately Buffered", size = 4.5, fontface = "bold") +
+    annotate("text", x = x_limits[1] + ((HDH_split - x_limits[1])/2), y = y_limits[1] + ((CDH_split - y_limits[1])/2), vjust = 0.5, hjust = 0.5, label = "Thermal Refugia", size = 4.5, fontface = "bold") +
+    annotate("text", x = HDH_split + ((x_limits[2] - HDH_split)/2), y = CDH_split + ((y_limits[2] - CDH_split)/2), vjust = 0.5, hjust = 0.5, label = "Thermally Vulnerable", size = 4.5, fontface = "bold") +
+    annotate("text", x = HDH_split + ((x_limits[2] - HDH_split)/2), y = y_limits[1] + ((CDH_split - y_limits[1])/2), vjust = 0.5, hjust = 0.5, label = "Thermally Resilient", size = 4.5, fontface = "bold")
+  
 }
+
 
 # F) Thermal balance (exposure vs cooling, site-level)
 plot_thermal_balance <- function(df) {
@@ -333,32 +346,55 @@ plot_heat_event_structure_site <- function(df) {
     ungroup() %>%
     dplyr::select(MeanEvents, MeanExposure)
   
+  set.seed(42)
   km_fit <- kmeans(cluster_df, centers = 4, nstart = 2) # fit k-means clusters
   event_split <- mean(km_fit$centers[1:4])
   exposure_split <- mean(km_fit$centers[5:8])
   
-  ggplot(site_level_events, aes(x = MeanEvents, y = MeanExposure, color = Park_Code, shape = Park_Code)) +
-    geom_point(size = 4.5) +
-    geom_text_repel(aes(label = Label), size = 3, max.overlaps = 30) +
+  plot <- ggplot(site_level_events, aes(x = MeanEvents, y = MeanExposure, color = Park_Code, shape = Park_Code)) +
+    geom_point(size = 4) +
+    geom_text_repel(aes(label = Label), size = 4, max.overlaps = 30, point.padding = 0.6, box.padding = 0.7, force = 2) +
     geom_vline(xintercept = event_split,   linetype = "dashed", color = grey_grid) +
     geom_hline(yintercept = exposure_split,linetype = "dashed", color = grey_grid) +
-    annotate("text", x = event_split * 0.45, y = max(site_level_events$MeanExposure, na.rm = TRUE) * 0.9,
-             label = "Episodic Heat Waves", size = 4) +
-    annotate("text", x = max(site_level_events$MeanEvents,   na.rm = TRUE) * 0.75, y = max(site_level_events$MeanExposure, na.rm = TRUE) * 0.9,
-             label = "Highly Stressed", size = 4) +
-    annotate("text", x = max(site_level_events$MeanEvents,   na.rm = TRUE) * 0.75, y = exposure_split * 0.5,
-             label = "Chronic Warming", size = 4) +
-    annotate("text", x = event_split * 0.45, y = exposure_split * 0.45,
-             label = "Low Exposure", size = 4) +
     scale_park_color() +
     scale_park_shape() +
     labs(
-      title    = "Heat Event Structure Across Coastal Parks",
+      title    = "Thermal Stress Across Coastal Parks",
       subtitle = "Points represent site-level averages across monitoring years",
       x = "Mean Number of Warming Events (Frequency)",
       y = "Mean % Time Above Threshold (Duration)",
       color = "Park", shape = "Park"
     )
+  
+  plot_build <- ggplot_build(plot)
+  x_limits <- plot_build$layout$panel_params[[1]]$x$continuous_range
+  y_limits <- plot_build$layout$panel_params[[1]]$y$continuous_range
+  
+  quad_shift <- 0.15 * diff(y_limits)
+  
+  
+  plot +
+    annotate("text",
+             x = x_limits[1] + ((event_split - x_limits[1]) / 2),
+             y = exposure_split + ((y_limits[2] - exposure_split) / 2) - quad_shift,
+             label = "Episodic Heat Waves",
+             size = 4, fontface = "bold") +
+    annotate("text",
+             x = x_limits[1] + ((event_split - x_limits[1]) / 2),
+             y = y_limits[1] + ((exposure_split - y_limits[1]) / 2) + quad_shift,
+             label = "Low Thermal Stress",
+             size = 4, fontface = "bold") +
+    annotate("text",
+             x = event_split + ((x_limits[2] - event_split) / 2),
+             y = exposure_split + ((y_limits[2] - exposure_split) / 2) - quad_shift,
+             label = "Sustained Stressed",
+             size = 4, fontface = "bold") +
+    annotate("text",
+             x = event_split + ((x_limits[2] - event_split) / 2),
+             y = y_limits[1] + ((exposure_split - y_limits[1]) / 2) + quad_shift,
+             label = "Frequent Pulsed Warming",
+             size = 4, fontface = "bold")
+  
 }
 
 # (Optional) H) Thermal balance at TRANSECT level (no interpretation grids)
@@ -385,6 +421,7 @@ plot_thermal_balance_transect <- function(df) {
       color = "Park"
     )
 }
+
 
 # -------------------------------
 # 5) OUTPUT: CREATE ALL FIGURES
